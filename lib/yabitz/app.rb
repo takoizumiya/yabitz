@@ -2967,6 +2967,10 @@ EOT
   # end
 end
 
+require_relative 'controller/host'
+require_relative 'controller/brick'
+require_relative 'controller/search'
+
 if ENV['RACK_ENV'].to_sym == :development or ENV['RACK_ENV'].to_sym == :importtest
   Yabitz::Application.run! :host => '0.0.0.0', :port => 8180
 end
