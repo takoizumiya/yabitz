@@ -1,9 +1,7 @@
 # Yabitz
 
 * yabitz - Yet Another Business Information Tracker Z
-* http://github.com/tagomoris/yabitz
-
-* by tagomoris (tagomrois at gmail.com, tagomoris at livedoor.jp, @tagomoris on Twitter)
+* http://github.com/livedoor/yabitz
 
 ## DESCRIPTION
 
@@ -282,7 +280,7 @@ yabitz でホスト管理を行うには、最低限以下の情報を登録す�
 
 ## License
 
-Copyright 2011 TAGOMORI Satoshi (tagomoris)
+Copyright 2011- NHN Japan Corp.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
