@@ -183,4 +183,6 @@ class Yabitz::Application < Sinatra::Base
       pass
     end
   end
+
+  # get '/ybz/rack/retrospect/:oid' #TODO
 end
