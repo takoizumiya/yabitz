@@ -29,6 +29,8 @@ module Yabitz
         Yabitz::Model::Host.regex_match(:os => pattern, :oidonly => true)
       when 'tag'
         Yabitz::Model::TagChain.query(:tagchain => pattern).map(&:host_by_id).uniq
+      when 'status'
+        Yabitz::Model::Host.regex_match(:status => pattern, :oidonly => true)
       end
     end
 

@@ -1,4 +1,44 @@
 -# coding: utf-8
+:javascript
+  function fieldCheck ( elem ) {
+    var e = $( elem );
+    var vTextName = e.attr('name').replace('field','value');
+    var vText = $("td > input[name="+ vTextName +"]");
+    var statList = [
+      '', 'UNDER_DEV', 'NO_COUNT', 'IN_SERVICE', 'OTHER', 'REMOVING', 'SUSPENDED', 'REMOVED', 'STANDBY', 'MISSING'
+    ];
+    var statLabel = [
+      '(状態を選択)', '準備中', '非課金', '稼働中', '不明', '撤去依頼済', '停止', '撤去完了', '待機', '管理対象外'
+    ];
+    if ( e.val() === 'status' ) {
+      var lastVal = vText.val();
+      vText.hide();
+      vText.val('');
+      vText.after('<select name="'+ vTextName +'"></select>');
+      $.each(statList, function( i, stat ){
+        var selected = '';
+        if ( stat === lastVal ) {
+          selected = 'selected';
+        }
+        $('select[name='+ vTextName +']').append('<option value="'+ stat +'" '+ selected +'>'+ statLabel[i] +'</option>');
+      });
+    }
+    else {
+      $('select[name='+ vTextName +']').remove();
+      vText.show();
+    }
+  }
+
+  $(document).ready( function(){
+    $('td.namefield > select').each(function(){
+      if( $(this).val() === 'status' ) {
+        fieldCheck( this );
+      }
+    });
+    $('td.namefield > select').change(function(){
+      fieldCheck( this );
+    });
+  });
 
 %div#toolbox_spacer_top
 %div#toolbox
@@ -41,6 +81,7 @@
                     %option{:value => 'hwinfo'} ハードウェア種類名
                     %option{:value => 'os'} OS
                     %option{:value => 'tag'} タグ(一致のみ)
+                    %option{:value => 'status'} 状態
                 %td.inputfield{:style => "text-align: left; width: 45%;"}
                   %input.simple.blank_onclone{:type => "text", :name => "value0", :size => 30}
                 %td{:style => "width: 10%;"}
@@ -65,6 +106,7 @@
                       %option{:value => 'hwinfo', :selected => (cfield == 'hwinfo')} ハードウェア種類名
                       %option{:value => 'os', :selected => (cfield == 'os')} OS
                       %option{:value => 'tag', :selected => (cfield == 'tag')} タグ(一致のみ)
+                      %option{:value => 'status', :selected => (cfield == 'status')} 状態
                   %td.inputfield{:style => "text-align: left; width: 45%;"}
                     %input.simple.blank_onclone{:type => "text", :name => "value#{cnum}", :size => 30, :value => h(cvalue)}
                   %td{:style => "width: 10%;"}
@@ -94,6 +136,7 @@
                     %option{:value => 'hwinfo'} ハードウェア種類名
                     %option{:value => 'os'} OS
                     %option{:value => 'tag'} タグ(一致のみ)
+                    %option{:value => 'status'} 状態
                 %td.inputfield{:style => "text-align: left; width: 45%;"}
                   %input.simple.blank_onclone{:type => "text", :name => "ex_value0", :size => 30}
                 %td{:style => "width: 10%;"}
@@ -118,6 +161,7 @@
                       %option{:value => 'hwinfo', :selected => (cfield == 'hwinfo')} ハードウェア種類名
                       %option{:value => 'os', :selected => (cfield == 'os')} OS
                       %option{:value => 'tag', :selected => (cfield == 'tag')} タグ(一致のみ)
+                      %option{:value => 'status', :selected => (cfield == 'status')} 状態
                   %td.inputfield{:style => "text-align: left; width: 45%;"}
                     %input.simple.blank_onclone{:type => "text", :name => "ex_value#{cnum}", :size => 30, :value => h(cvalue)}
                   %td{:style => "width: 10%;"}
