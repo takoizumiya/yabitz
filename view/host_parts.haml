@@ -19,8 +19,8 @@
       - if @host.service.contact_by_id
         %span{:style => "font-size: 60%;"}
           %a{:href => "/ybz/contact/#{@host.service.contact_by_id}"} [連絡先]
-        %span{:style => "font-size: 60%;"}
-          %a{:href => "/ybz/host/history/#{@host.oid}"} [変更履歴]
+      %span{:style => "font-size: 60%;"}
+        %a{:href => "/ybz/host/history/#{@host.oid}"} [変更履歴]
   = field_editable 'host', @host, :simpleselector, :type, "タイプ", @host.type, "未指定", :values => Yabitz::HostType.names, :labels => Yabitz::HostType.names
   - if @host.parent_by_id
     %div.fieldvalue
