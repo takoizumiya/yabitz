@@ -41,6 +41,10 @@
         %div.fieldvalue
           %span.field Mail(休日/夜間):
           %span.value&= @contact.mail_offtime
+      - unless @contact.inserted_at.nil?
+        %div.fieldvalue
+          %span.field 最終更新日時:
+          %span.value&= @contact.inserted_at
       %div.field メモ
       %div.value
         - if @contact.memo.nil? or @contact.memo.empty?
