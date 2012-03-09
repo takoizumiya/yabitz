@@ -28,7 +28,6 @@ class Yabitz::Application < Sinatra::Base
         ex_search_value = request.params["ex_value#{i}"].strip
         ex_conditions.push([request.params["ex_field#{i}"], ex_search_value])
       end
-      p conditions
       @hosts = Yabitz::DetailSearch.search(andor, conditions, ex_andor, ex_conditions)
     end
 
