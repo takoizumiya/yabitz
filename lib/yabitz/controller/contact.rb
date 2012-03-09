@@ -49,12 +49,14 @@ class Yabitz::Application < Sinatra::Base
         if request.params['target_id']
           raise Stratum::ConcurrentUpdateError unless request.params['target_id'].to_i == @contact.id
         end
-        ['label', 'telno_daytime', 'mail_daytime', 'telno_offtime', 'mail_offtime', 'memo'].each do |field_string|
-          unless @contact.send(field_string) == request.params[field_string].strip
-            @contact.send(field_string + '=', request.params[field_string].strip)
-          end
-        end
-        @contact.save unless @contact.saved?
+        @contact.label = request.params['label'].strip unless @contact.label == request.params['label'].strip
+        @contact.telno_daytime = request.params['telno_daytime'].strip unless @contact.telno_daytime == request.params['telno_daytime'].strip
+        @contact.mail_daytime = request.params['mail_daytime'].strip unless @contact.mail_daytime == request.params['mail_daytime'].strip
+        @contact.telno_offtime = request.params['telno_offtime'].strip unless @contact.telno_offtime == request.params['telno_offtime'].strip
+        @contact.mail_offtime = request.params['mail_offtime'].strip unless @contact.mail_offtime == request.params['mail_offtime'].strip
+        @contact.memo = request.params['memo'].strip unless @contact.memo == request.params['memo'].strip
+
+        @contact.save
         Yabitz::Plugin.get(:handler_hook).each do |plugin|
           if plugin.respond_to?(:contact_update)
             plugin.contact_update(@contact)
