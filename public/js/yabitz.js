@@ -847,3 +847,26 @@ function switch_combobox_input(event) {
         .keypress(function(e){if(e.which == 13){$(e.target).closest('form.field_edit_form').submit();};})
         .focus();
 };
+
+function searchFieldCheck ( elem, statList, statLabel ) {
+    var e = $( elem );
+    var vTextName = e.attr('name').replace('field','value');
+    var vText = $("td > input[name="+ vTextName +"]");
+    if ( e.val() === 'status' ) {
+        var lastVal = vText.val();
+        vText.hide();
+        vText.val('');
+        vText.after('<select name="'+ vTextName +'"></select>');
+        $.each(statList, function( i, stat ){
+            var selected = '';
+            if ( stat === lastVal ) {
+                selected = 'selected';
+            }
+            $('select[name='+ vTextName +']').append('<option value="'+ stat +'" '+ selected +'>'+ statLabel[i] +'</option>');
+        });
+    }
+    else {
+        $('select[name='+ vTextName +']').remove();
+        vText.show();
+    }
+}

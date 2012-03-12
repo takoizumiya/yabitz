@@ -1,42 +1,16 @@
 -# coding: utf-8
 :javascript
-  function fieldCheck ( elem ) {
-    var e = $( elem );
-    var vTextName = e.attr('name').replace('field','value');
-    var vText = $("td > input[name="+ vTextName +"]");
-    var statList = [
-      '', 'UNDER_DEV', 'NO_COUNT', 'IN_SERVICE', 'OTHER', 'REMOVING', 'SUSPENDED', 'REMOVED', 'STANDBY', 'MISSING'
-    ];
-    var statLabel = [
-      '(状態を選択)', '準備中', '非課金', '稼働中', '不明', '撤去依頼済', '停止', '撤去完了', '待機', '管理対象外'
-    ];
-    if ( e.val() === 'status' ) {
-      var lastVal = vText.val();
-      vText.hide();
-      vText.val('');
-      vText.after('<select name="'+ vTextName +'"></select>');
-      $.each(statList, function( i, stat ){
-        var selected = '';
-        if ( stat === lastVal ) {
-          selected = 'selected';
-        }
-        $('select[name='+ vTextName +']').append('<option value="'+ stat +'" '+ selected +'>'+ statLabel[i] +'</option>');
-      });
-    }
-    else {
-      $('select[name='+ vTextName +']').remove();
-      vText.show();
-    }
-  }
-
   $(document).ready( function(){
+    var statList = #{Yabitz::Model::Host::STATUS_LIST}
+    var statLabel = #{Yabitz::Model::Host::STATUS_LIST.map{|x| Yabitz::Model::Host.status_title(x)}}
+
     $('td.namefield > select').each(function(){
       if( $(this).val() === 'status' ) {
-        fieldCheck( this );
+        searchFieldCheck( this, statList, statLabel );
       }
     });
     $('td.namefield > select').change(function(){
-      fieldCheck( this );
+      searchFieldCheck( this, statList, statLabel );
     });
   });
 
