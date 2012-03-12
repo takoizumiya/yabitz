@@ -90,6 +90,10 @@ $(function(){
         $('button#select_on_all').click();
     }
 
+    $('.search_field_select').each(function(i, elem){
+        searchFieldCheckInit( elem );
+    });
+
     ZeroClipboard.setMoviePath( '/zeroclipboard/ZeroClipboard10.swf' );
 });
 
@@ -645,6 +649,7 @@ function clone_cloneable_item(event){
     cloned_to.find('input.cloneable_number').val(cloned_to_id);
     cloned_to.find('input.blank_onclone').val('');
     cloned_to.insertAfter(sibling_last);
+    searchFieldCheckInit(cloned_to.find('select.search_field_select').get(0));
 };
 
 function commit_mainview_form(form, success_message, on_success_callback, on_error_callback) {
@@ -848,25 +853,28 @@ function switch_combobox_input(event) {
         .focus();
 };
 
-function searchFieldCheck ( elem, statList, statLabel ) {
+function searchFieldCheck ( elem ) {
     var e = $( elem );
-    var vTextName = e.attr('name').replace('field','value');
-    var vText = $("td > input[name="+ vTextName +"]");
+    var vName = e.attr('name').replace('field','value');
+    var vText = $("td > input[name="+ vName +"]");
+    var vSelect = $("td > select[name="+ vName +"]");
     if ( e.val() === 'status' ) {
-        var lastVal = vText.val();
+        vSelect.attr('disabled', false);
+        vSelect.show();
+        vText.attr('disabled', true)
         vText.hide();
-        vText.val('');
-        vText.after('<select name="'+ vTextName +'"></select>');
-        $.each(statList, function( i, stat ){
-            var selected = '';
-            if ( stat === lastVal ) {
-                selected = 'selected';
-            }
-            $('select[name='+ vTextName +']').append('<option value="'+ stat +'" '+ selected +'>'+ statLabel[i] +'</option>');
-        });
     }
     else {
-        $('select[name='+ vTextName +']').remove();
+        vSelect.attr('disabled', true);
+        vSelect.hide();
+        vText.attr('disabled', false)
         vText.show();
     }
+}
+
+function searchFieldCheckInit ( elem ) {
+    searchFieldCheck( elem );
+    $(elem).change(function(){
+        searchFieldCheck( elem );
+    });
 }

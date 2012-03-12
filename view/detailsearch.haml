@@ -1,18 +1,4 @@
 -# coding: utf-8
-:javascript
-  $(document).ready( function(){
-    var statList = #{Yabitz::Model::Host::STATUS_LIST}
-    var statLabel = #{Yabitz::Model::Host::STATUS_LIST.map{|x| Yabitz::Model::Host.status_title(x)}}
-
-    $('td.namefield > select').each(function(){
-      if( $(this).val() === 'status' ) {
-        searchFieldCheck( this, statList, statLabel );
-      }
-    });
-    $('td.namefield > select').change(function(){
-      searchFieldCheck( this, statList, statLabel );
-    });
-  });
 
 %div#toolbox_spacer_top
 %div#toolbox
@@ -45,7 +31,7 @@
             %table.inputitems
               %tr
                 %td.namefield{:style => "text-align: left; width: 45%;"}
-                  %select{:name => "field0"}
+                  %select.search_field_select{:name => "field0"}
                     %option{:value => 'not_selected', :selected => true} 検索対象フィールドの選択
                     %option{:value => 'dnsname'} dns名
                     %option{:value => 'ipaddress'} IPアドレス
@@ -58,6 +44,10 @@
                     %option{:value => 'status'} 状態
                 %td.inputfield{:style => "text-align: left; width: 45%;"}
                   %input.simple.blank_onclone{:type => "text", :name => "value0", :size => 30}
+                  %select{:name => "value0"}
+                    %option{:value => ''} (状態を選択)
+                    - for stat in Yabitz::Model::Host::STATUS_LIST
+                      %option{:value => stat} #{Yabitz::Model::Host.status_title(stat)}
                 %td{:style => "width: 10%;"}
                   %div.listclone{:style => "text-align: right;"}
                     %img.button{:src => "/images/adding.png"}
@@ -70,7 +60,7 @@
               %table.inputitems
                 %tr
                   %td.namefield{:style => "text-align: left; width: 45%;"}
-                    %select{:name => "field#{cnum}"}
+                    %select.search_field_select{:name => "field#{cnum}"}
                       %option{:value => 'not_selected', :selected => (cfield == 'not_selected')} 検索対象フィールドの選択
                       %option{:value => 'dnsname', :selected => (cfield == 'dnsname')} dns名
                       %option{:value => 'ipaddress', :selected => (cfield == 'ipaddress')} IPアドレス
@@ -83,6 +73,11 @@
                       %option{:value => 'status', :selected => (cfield == 'status')} 状態
                   %td.inputfield{:style => "text-align: left; width: 45%;"}
                     %input.simple.blank_onclone{:type => "text", :name => "value#{cnum}", :size => 30, :value => h(cvalue)}
+                    %select{:name => "value#{cnum}"}
+                      %option{:value => ''} (状態を選択)
+                      - for stat in Yabitz::Model::Host::STATUS_LIST
+                        - selected = stat == cvalue ? true : false ;
+                        %option{:value => stat, :selected => selected} #{Yabitz::Model::Host.status_title(stat)}
                   %td{:style => "width: 10%;"}
                     %div.listclone{:style => "text-align: right;"}
                       %img.button{:src => "/images/adding.png"}
@@ -100,7 +95,7 @@
             %table.inputitems
               %tr
                 %td.namefield{:style => "text-align: left; width: 45%;"}
-                  %select{:name => "ex_field0"}
+                  %select.search_field_select{:name => "ex_field0"}
                     %option{:value => 'not_selected', :selected => true} 除外条件対象フィールドの選択
                     %option{:value => 'dnsname'} dns名
                     %option{:value => 'ipaddress'} IPアドレス
@@ -113,6 +108,10 @@
                     %option{:value => 'status'} 状態
                 %td.inputfield{:style => "text-align: left; width: 45%;"}
                   %input.simple.blank_onclone{:type => "text", :name => "ex_value0", :size => 30}
+                  %select{:name => "ex_value0"}
+                    %option{:value => ''} (状態を選択)
+                    - for stat in Yabitz::Model::Host::STATUS_LIST
+                      %option{:value => stat} #{Yabitz::Model::Host.status_title(stat)}
                 %td{:style => "width: 10%;"}
                   %div.listclone{:style => "text-align: right;"}
                     %img.button{:src => "/images/adding.png"}
@@ -125,7 +124,7 @@
               %table.inputitems
                 %tr
                   %td.namefield{:style => "text-align: left; width: 45%;"}
-                    %select{:name => "ex_field#{cnum}"}
+                    %select.search_field_select{:name => "ex_field#{cnum}"}
                       %option{:value => 'not_selected', :selected => (cfield == 'not_selected')} 検索対象フィールドの選択
                       %option{:value => 'dnsname', :selected => (cfield == 'dnsname')} dns名
                       %option{:value => 'ipaddress', :selected => (cfield == 'ipaddress')} IPアドレス
@@ -138,6 +137,11 @@
                       %option{:value => 'status', :selected => (cfield == 'status')} 状態
                   %td.inputfield{:style => "text-align: left; width: 45%;"}
                     %input.simple.blank_onclone{:type => "text", :name => "ex_value#{cnum}", :size => 30, :value => h(cvalue)}
+                    %select{:name => "ex_value#{cnum}"}
+                      %option{:value => ''} (状態を選択)
+                      - for stat in Yabitz::Model::Host::STATUS_LIST
+                        - selected = stat == cvalue ? true : false ;
+                        %option{:value => stat, :selected => selected} #{Yabitz::Model::Host.status_title(stat)}
                   %td{:style => "width: 10%;"}
                     %div.listclone{:style => "text-align: right;"}
                       %img.button{:src => "/images/adding.png"}
