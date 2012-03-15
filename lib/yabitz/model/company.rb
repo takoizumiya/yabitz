@@ -92,6 +92,7 @@ module Yabitz
       field :urls, :reflist, :model => 'Yabitz::Model::ServiceURL', :empty => :ok
       field :contact, :ref, :model => 'Yabitz::Model::Contact', :empty => :ok
       field :notes, :string, :length => 4096, :empty => :ok
+      field :hypervisors, :bool, :default => false
 
       def self.instanciate_mapping(fieldname)
         case fieldname
@@ -103,6 +104,8 @@ module Yabitz
           {:method => :query_or_create, :class => Yabitz::Model::Contact, :field => :label}
         when :urls
           {:method => :query_or_create, :class => Yabitz::Model::ServiceURL, :field => :url}
+        when :hypervisors
+          {:method => :boolparser}
         else
           raise ArgumentError, "unknown field name '#{fieldname}'"
         end
