@@ -859,16 +859,21 @@ function searchFieldCheck ( elem ) {
     var vText = $("td > input[name="+ vName +"]");
     var vSelect = $("td > select[name="+ vName +"]");
     if ( e.val() === 'status' ) {
-        vSelect.attr('disabled', false);
-        vSelect.show();
-        vText.attr('disabled', true)
-        vText.hide();
+        if (vSelect.attr('disabled')) {
+            vSelect.attr('disabled', false);
+            vSelect.show();
+            vText.attr('disabled', true)
+            vText.hide();
+        }
     }
     else {
-        vSelect.attr('disabled', true);
-        vSelect.hide();
-        vText.attr('disabled', false)
-        vText.show();
+        if (vText.attr('disabled')) {
+            vSelect.attr('disabled', true);
+            vSelect.hide();
+            vText.val('');
+            vText.attr('disabled', false);
+            vText.show();
+        }
     }
 }
 

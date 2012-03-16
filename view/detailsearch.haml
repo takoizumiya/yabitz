@@ -44,7 +44,7 @@
                     %option{:value => 'status'} 状態
                 %td.inputfield{:style => "text-align: left; width: 45%;"}
                   %input.simple.blank_onclone{:type => "text", :name => "value0", :size => 30}
-                  %select{:name => "value0"}
+                  %select{:name => "value0", :style => "display: none;", :disabled => true }
                     %option{:value => ''} (状態を選択)
                     - for stat in Yabitz::Model::Host::STATUS_LIST
                       %option{:value => stat} #{Yabitz::Model::Host.status_title(stat)}
@@ -73,7 +73,7 @@
                       %option{:value => 'status', :selected => (cfield == 'status')} 状態
                   %td.inputfield{:style => "text-align: left; width: 45%;"}
                     %input.simple.blank_onclone{:type => "text", :name => "value#{cnum}", :size => 30, :value => h(cvalue)}
-                    %select{:name => "value#{cnum}"}
+                    %select{:name => "value#{cnum}", :style => "display: none;", :disabled => true }
                       %option{:value => ''} (状態を選択)
                       - for stat in Yabitz::Model::Host::STATUS_LIST
                         - selected = stat == cvalue ? true : false ;
@@ -108,7 +108,7 @@
                     %option{:value => 'status'} 状態
                 %td.inputfield{:style => "text-align: left; width: 45%;"}
                   %input.simple.blank_onclone{:type => "text", :name => "ex_value0", :size => 30}
-                  %select{:name => "ex_value0"}
+                  %select{:name => "ex_value0", :style => "display: none;", :disabled => true }
                     %option{:value => ''} (状態を選択)
                     - for stat in Yabitz::Model::Host::STATUS_LIST
                       %option{:value => stat} #{Yabitz::Model::Host.status_title(stat)}
@@ -137,7 +137,7 @@
                       %option{:value => 'status', :selected => (cfield == 'status')} 状態
                   %td.inputfield{:style => "text-align: left; width: 45%;"}
                     %input.simple.blank_onclone{:type => "text", :name => "ex_value#{cnum}", :size => 30, :value => h(cvalue)}
-                    %select{:name => "ex_value#{cnum}"}
+                    %select{:name => "ex_value#{cnum}", :style => "display: none;", :disabled => true }
                       %option{:value => ''} (状態を選択)
                       - for stat in Yabitz::Model::Host::STATUS_LIST
                         - selected = stat == cvalue ? true : false ;
