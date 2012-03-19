@@ -15,6 +15,7 @@ class Yabitz::Application < Sinatra::Base
     conditions = []
     ex_andor = 'AND'
     ex_conditions = []
+    cond_status = request.params['status'] ? request.params['status'] : 'ALL'
     if request.params['andor']
       andor = (request.params['andor'] == 'OR' ? 'OR' : 'AND')
       request.params.keys.map{|k| k =~ /\Acond(\d+)\Z/; $1 ? $1.to_i : nil}.compact.sort.each do |i|
@@ -28,7 +29,7 @@ class Yabitz::Application < Sinatra::Base
         ex_search_value = request.params["ex_value#{i}"].strip
         ex_conditions.push([request.params["ex_field#{i}"], ex_search_value])
       end
-      @hosts = Yabitz::DetailSearch.search(andor, conditions, ex_andor, ex_conditions)
+      @hosts = Yabitz::DetailSearch.search_with_status(andor, conditions, ex_andor, ex_conditions, cond_status)
     end
 
     Stratum.preload(@hosts, Yabitz::Model::Host) if @hosts;
@@ -50,7 +51,7 @@ class Yabitz::Application < Sinatra::Base
       haml :detailsearch, :locals => {
         :andor => andor, :conditions => conditions,
         :ex_andor => ex_andor, :ex_conditions => ex_conditions,
-        :csv_url => csv_url
+        :csv_url => csv_url, :cond_status => cond_status
       }
     end
   end

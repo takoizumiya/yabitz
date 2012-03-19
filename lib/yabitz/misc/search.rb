@@ -68,6 +68,15 @@ module Yabitz
       oidset = oidset - ex_oidset
       Yabitz::Model::Host.get(oidset)
     end
+
+    def self.search_with_status(andor, conditions, ex_andor, ex_conditions, status='ALL')
+      hosts = self.search(andor, conditions, ex_andor, ex_conditions)
+      unless status == 'ALL'
+        stat_hosts = self.search( 'AND', [['status', status]], 'AND', [] );
+        hosts = hosts & stat_hosts
+      end
+      return hosts
+    end
   end
 
   module SmartSearch

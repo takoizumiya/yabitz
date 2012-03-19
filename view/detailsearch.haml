@@ -31,7 +31,7 @@
             %table.inputitems
               %tr
                 %td.namefield{:style => "text-align: left; width: 45%;"}
-                  %select.search_field_select{:name => "field0"}
+                  %select{:name => "field0"}
                     %option{:value => 'not_selected', :selected => true} 検索対象フィールドの選択
                     %option{:value => 'dnsname'} dns名
                     %option{:value => 'ipaddress'} IPアドレス
@@ -41,13 +41,8 @@
                     %option{:value => 'hwinfo'} ハードウェア種類名
                     %option{:value => 'os'} OS
                     %option{:value => 'tag'} タグ(一致のみ)
-                    %option{:value => 'status'} 状態
                 %td.inputfield{:style => "text-align: left; width: 45%;"}
                   %input.simple.blank_onclone{:type => "text", :name => "value0", :size => 30}
-                  %select{:name => "value0", :style => "display: none;", :disabled => true }
-                    %option{:value => ''} (状態を選択)
-                    - for stat in Yabitz::Model::Host::STATUS_LIST
-                      %option{:value => stat} #{Yabitz::Model::Host.status_title(stat)}
                 %td{:style => "width: 10%;"}
                   %div.listclone{:style => "text-align: right;"}
                     %img.button{:src => "/images/adding.png"}
@@ -60,7 +55,7 @@
               %table.inputitems
                 %tr
                   %td.namefield{:style => "text-align: left; width: 45%;"}
-                    %select.search_field_select{:name => "field#{cnum}"}
+                    %select{:name => "field#{cnum}"}
                       %option{:value => 'not_selected', :selected => (cfield == 'not_selected')} 検索対象フィールドの選択
                       %option{:value => 'dnsname', :selected => (cfield == 'dnsname')} dns名
                       %option{:value => 'ipaddress', :selected => (cfield == 'ipaddress')} IPアドレス
@@ -70,17 +65,18 @@
                       %option{:value => 'hwinfo', :selected => (cfield == 'hwinfo')} ハードウェア種類名
                       %option{:value => 'os', :selected => (cfield == 'os')} OS
                       %option{:value => 'tag', :selected => (cfield == 'tag')} タグ(一致のみ)
-                      %option{:value => 'status', :selected => (cfield == 'status')} 状態
                   %td.inputfield{:style => "text-align: left; width: 45%;"}
                     %input.simple.blank_onclone{:type => "text", :name => "value#{cnum}", :size => 30, :value => h(cvalue)}
-                    %select{:name => "value#{cnum}", :style => "display: none;", :disabled => true }
-                      %option{:value => ''} (状態を選択)
-                      - for stat in Yabitz::Model::Host::STATUS_LIST
-                        - selected = stat == cvalue ? true : false ;
-                        %option{:value => stat, :selected => selected} #{Yabitz::Model::Host.status_title(stat)}
                   %td{:style => "width: 10%;"}
                     %div.listclone{:style => "text-align: right;"}
                       %img.button{:src => "/images/adding.png"}
+      %h4 ホスト状態による絞り込み
+      %div{:style => "margin-bottom:8px;"}
+        %select{:name => "status" }
+          %option{:value => 'ALL'} 全て
+          - for stat in Yabitz::Model::Host::STATUS_LIST
+            - selected = stat == cond_status ? true : false
+            %option{:value => stat, :selected => selected} #{Yabitz::Model::Host.status_title(stat)}
       %h4 検索除外対象
       %div
         除外対象選択
@@ -95,7 +91,7 @@
             %table.inputitems
               %tr
                 %td.namefield{:style => "text-align: left; width: 45%;"}
-                  %select.search_field_select{:name => "ex_field0"}
+                  %select{:name => "ex_field0"}
                     %option{:value => 'not_selected', :selected => true} 除外条件対象フィールドの選択
                     %option{:value => 'dnsname'} dns名
                     %option{:value => 'ipaddress'} IPアドレス
@@ -105,13 +101,8 @@
                     %option{:value => 'hwinfo'} ハードウェア種類名
                     %option{:value => 'os'} OS
                     %option{:value => 'tag'} タグ(一致のみ)
-                    %option{:value => 'status'} 状態
                 %td.inputfield{:style => "text-align: left; width: 45%;"}
                   %input.simple.blank_onclone{:type => "text", :name => "ex_value0", :size => 30}
-                  %select{:name => "ex_value0", :style => "display: none;", :disabled => true }
-                    %option{:value => ''} (状態を選択)
-                    - for stat in Yabitz::Model::Host::STATUS_LIST
-                      %option{:value => stat} #{Yabitz::Model::Host.status_title(stat)}
                 %td{:style => "width: 10%;"}
                   %div.listclone{:style => "text-align: right;"}
                     %img.button{:src => "/images/adding.png"}
@@ -124,7 +115,7 @@
               %table.inputitems
                 %tr
                   %td.namefield{:style => "text-align: left; width: 45%;"}
-                    %select.search_field_select{:name => "ex_field#{cnum}"}
+                    %select{:name => "ex_field#{cnum}"}
                       %option{:value => 'not_selected', :selected => (cfield == 'not_selected')} 検索対象フィールドの選択
                       %option{:value => 'dnsname', :selected => (cfield == 'dnsname')} dns名
                       %option{:value => 'ipaddress', :selected => (cfield == 'ipaddress')} IPアドレス
@@ -134,14 +125,8 @@
                       %option{:value => 'hwinfo', :selected => (cfield == 'hwinfo')} ハードウェア種類名
                       %option{:value => 'os', :selected => (cfield == 'os')} OS
                       %option{:value => 'tag', :selected => (cfield == 'tag')} タグ(一致のみ)
-                      %option{:value => 'status', :selected => (cfield == 'status')} 状態
                   %td.inputfield{:style => "text-align: left; width: 45%;"}
                     %input.simple.blank_onclone{:type => "text", :name => "ex_value#{cnum}", :size => 30, :value => h(cvalue)}
-                    %select{:name => "ex_value#{cnum}", :style => "display: none;", :disabled => true }
-                      %option{:value => ''} (状態を選択)
-                      - for stat in Yabitz::Model::Host::STATUS_LIST
-                        - selected = stat == cvalue ? true : false ;
-                        %option{:value => stat, :selected => selected} #{Yabitz::Model::Host.status_title(stat)}
                   %td{:style => "width: 10%;"}
                     %div.listclone{:style => "text-align: right;"}
                       %img.button{:src => "/images/adding.png"}
@@ -173,3 +158,10 @@
           = haml :host_list, :locals => {:host_list => @hosts.sort}
         - else
           = haml :host_list, :locals => {:host_list => @hosts}
+
+        -# 
+          %select{:name => "value0", :style => "display: none;", :disabled => true }
+            %option{:value => ''} (状態を選択)
+              - for stat in Yabitz::Model::Host::STATUS_LIST
+                %option{:value => stat} #{Yabitz::Model::Host.status_title(stat)}
+
