@@ -118,4 +118,73 @@ module Yabitz
       end
     end
   end
+
+  module ServiceSearch
+    def self.search(conditions={})
+      hosts = Yabitz::Model::Service.all.map{|srv| srv.oid }
+
+      ['name','content','charging','contact','mladdress','hypervisors','notes','urls'].each{|key|
+        conditions[key] ||= ''
+      }
+
+      if conditions['name'].length > 0
+        pattern = Regexp.compile(conditions['name'], Regexp::IGNORECASE)
+        result = Yabitz::Model::Service.regex_match(:name => pattern, :oidonly => true)
+        hosts = hosts & result
+      end
+
+      if conditions['content'].length > 0
+        pattern = Regexp.compile(conditions['content'], Regexp::IGNORECASE)
+        result = Yabitz::Model::Content.regex_match(:name => pattern, :oidonly => true).map do |content_oid|
+          Yabitz::Model::Service.query(:content => content_oid, :oidonly => true)
+        end.flatten
+        hosts = hosts & result
+      end
+
+      if conditions['charging'].length > 0
+        result = Yabitz::Model::Content.query(:charging => conditions['charging'], :oidonly => true).map do |content_oid|
+          Yabitz::Model::Service.query(:content => content_oid, :oidonly => true)
+        end.flatten
+        hosts = hosts & result
+      end
+
+      if conditions['contact'].length > 0
+        pattern = Regexp.compile(conditions['contact'], Regexp::IGNORECASE)
+        result = Yabitz::Model::Contact.regex_match(:label => pattern).map do |contact|
+          Yabitz::Model::Service.query(:contact => contact, :oidonly => true)
+        end.flatten
+        hosts = hosts & result
+      end
+
+      if conditions['mladdress'].length > 0
+        pattern = Regexp.compile(conditions['mladdress'], Regexp::IGNORECASE)
+        result = Yabitz::Model::Service.regex_match(:mladdress => pattern, :oidonly => true)
+        hosts = hosts & result
+      end
+
+      if conditions['hypervisors'].length > 0
+        hypervisors = conditions['hypervisors'] == 'true' ? true : false
+        result = Yabitz::Model::Service.query(:hypervisors => hypervisors, :oidonly => true)
+        hosts = hosts & result
+      end
+
+      if conditions['notes'].length > 0
+        pattern = Regexp.compile(conditions['notes'], Regexp::IGNORECASE)
+        result = Yabitz::Model::Service.regex_match(:notes => pattern, :oidonly => true)
+        hosts = hosts & result
+      end
+
+      if conditions['urls'].length > 0
+        pattern = Regexp.compile(conditions['urls'], Regexp::IGNORECASE)
+        result = Yabitz::Model::Service.all.select{|srv|
+          srv.urls.select{|url| 
+              url.to_s.match(pattern) 
+          }.count > 0
+        }.flatten.map{|srv| srv.oid }
+        hosts = hosts & result
+      end
+
+      return Yabitz::Model::Service.get(hosts)
+    end
+  end
 end

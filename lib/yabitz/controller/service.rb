@@ -8,12 +8,28 @@ class Yabitz::Application < Sinatra::Base
   ### 一覧系 ###
 
   # サービス一覧 ( /ybz/service/list が別途後ろの方に作成してあるので注意。現状中身はいっしょ。)
-  get '/ybz/services' do
+  get %r!/ybz/services(\.json|\.csv)?! do |ctype|
     authorized?
-    @services = Yabitz::Model::Service.all.sort
+    @services = Yabitz::ServiceSearch.search(request.params).sort
     Stratum.preload(@services, Yabitz::Model::Service)
-    @page_title = "サービス"
-    haml :services
+
+    case ctype
+    when '.json'
+      response['Content-Type'] = 'application/json';
+      @services.to_json
+    else
+      @page_title = "サービス"
+      haml :services, :locals => {
+        :in_name => request.params['name'],
+        :in_content => request.params['content'],
+        :in_mladdress => request.params['mladdress'],
+        :in_contact => request.params['contact'],
+        :in_urls => request.params['urls'],
+        :in_notes => request.params['notes'],
+        :in_charging => request.params['charging'],
+        :in_hypervisors => request.params['hypervisors'],
+      }
+    end
   end
 
   get %r!/ybz/service/diff/(\d+)! do |oid|
