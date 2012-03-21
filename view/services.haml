@@ -7,45 +7,9 @@
   %div&= "表示：" + @page_title
   %div#grepbox{:style => 'width:100%; padding:4px;'}
     %form#grepform{:name => "grepform", :action => '/ybz/services', :method => 'GET'}
-      %table#greptable
-        %tr
-          %th サービス名称
-          %td
-            %input{:type => 'text', :name => 'name', :value => in_name }
-          %th コンテンツ名
-          %td
-            %input{:type => 'text', :name => 'content', :value => in_content }
-        %tr
-          %th ML
-          %td
-            %input{:type => 'text', :name => 'mladdress', :value => in_mladdress }
-          %th 連絡先
-          %td
-            %input{:type => 'text', :name => 'contact', :value => in_contact }
-        %tr
-          %th サービスURL
-          %td
-            %input{:type => 'text', :name => 'urls', :value => in_urls }
-          %th メモ
-          %td
-            %input{:type => 'text', :name => 'notes', :value => in_notes }
-        %tr
-          %th 課金設定
-          %td
-            %select{:name => 'charging'}
-              %option{:value => ''} (指定なし)
-              - for stat in charging_status_list
-                - selected = stat == in_charging ? true : false
-                %option{:value => stat, :selected => selected} #{Yabitz::Model::Content.charging_title(stat)}
-          %th 仮想化基盤
-          %td
-            %select{:name => 'hypervisors'}
-              %option{:value => ''} (指定なし)
-              %option{:value => 'true', :selected => (in_hypervisors == 'true')} TRUE
-              %option{:value => 'false', :selected => (in_hypervisors == 'false')} FALSE
-        %tr
-          %td{:align => 'right', :colspan => 4}
-            %input{:type => 'submit', :value => '絞り込み'}
+      %span 絞り込み条件
+      %input{:type => 'text', :name => 'q', :value => in_q}
+      %input{:type => 'submit', :value => '絞り込み'}
   - if @isadmin
     %div
       選択したサービスへの操作: 

@@ -10,7 +10,8 @@ class Yabitz::Application < Sinatra::Base
   # サービス一覧 ( /ybz/service/list が別途後ろの方に作成してあるので注意。現状中身はいっしょ。)
   get %r!/ybz/services(\.json|\.csv)?! do |ctype|
     authorized?
-    @services = Yabitz::ServiceSearch.search(request.params).sort
+    in_q = request.params['q']
+    @services = Yabitz::ServiceSearch.smart_search(in_q).sort
     Stratum.preload(@services, Yabitz::Model::Service)
 
     case ctype
@@ -20,14 +21,7 @@ class Yabitz::Application < Sinatra::Base
     else
       @page_title = "サービス"
       haml :services, :locals => {
-        :in_name => request.params['name'],
-        :in_content => request.params['content'],
-        :in_mladdress => request.params['mladdress'],
-        :in_contact => request.params['contact'],
-        :in_urls => request.params['urls'],
-        :in_notes => request.params['notes'],
-        :in_charging => request.params['charging'],
-        :in_hypervisors => request.params['hypervisors'],
+        :in_q => in_q
       }
     end
   end
