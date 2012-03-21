@@ -5,11 +5,12 @@
 %div#toolbox_spacer_top
 %div#toolbox
   %div&= "表示：" + @page_title
-  %div#grepbox{:style => 'width:100%; padding:4px;'}
-    %form#grepform{:name => "grepform", :action => '/ybz/services', :method => 'GET'}
-      %span 絞り込み条件
-      %input{:type => 'text', :name => 'q', :value => in_q}
-      %input{:type => 'submit', :value => '絞り込み'}
+  -if enable_grep_form
+    %div#grepbox{:style => 'width:100%; padding:4px;'}
+      %form#grepform{:name => "grepform", :action => '/ybz/services', :method => 'GET'}
+        %span 絞り込み条件
+        %input{:type => 'text', :name => 'q', :value => in_q}
+        %input{:type => 'submit', :value => '絞り込み'}
   - if @isadmin
     %div
       選択したサービスへの操作: 

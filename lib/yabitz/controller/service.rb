@@ -21,7 +21,8 @@ class Yabitz::Application < Sinatra::Base
     else
       @page_title = "サービス"
       haml :services, :locals => {
-        :in_q => in_q
+        :in_q => in_q,
+        :enable_grep_form => true
       }
     end
   end
@@ -73,7 +74,10 @@ class Yabitz::Application < Sinatra::Base
     else
       @services.sort!
       @page_title = "サービス"
-      haml :services
+      haml :services, :locals => { 
+        :in_q => nil,
+        :enable_grep_form => false
+      }
     end
   end
 
@@ -106,7 +110,10 @@ class Yabitz::Application < Sinatra::Base
       @service_single = true
       @services = [@srv]
       Stratum.preload(@services, Yabitz::Model::Service)
-      haml :services
+      haml :services, :locals => { 
+        :in_q => nil,
+        :enable_grep_form => false
+      }
     end
   end
 
