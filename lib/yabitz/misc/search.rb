@@ -190,6 +190,9 @@ module Yabitz
     end
 
     def self.smart_search ( keyword='' ) 
+      unless keyword 
+        return Yabitz::Model::Service.all
+      end
       if keyword.length < 1
         return Yabitz::Model::Service.all
       end
