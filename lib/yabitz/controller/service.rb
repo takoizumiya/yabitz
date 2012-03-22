@@ -27,6 +27,25 @@ class Yabitz::Application < Sinatra::Base
     end
   end
 
+  get %r!/ybz/service/search(\.json|\.csv)?! do |ctype|
+    authorized?
+    in_q = request.params['q']
+    @services = Yabitz::ServiceSearch.search(request.params).sort
+    Stratum.preload(@services, Yabitz::Model::Service)
+
+    case ctype
+    when '.json'
+      response['Content-Type'] = 'application/json';
+      @services.to_json
+    else
+      @page_title = "サービス"
+      haml :services, :locals => {
+        :in_q => in_q,
+        :enable_grep_form => true
+      }
+    end
+  end
+
   get %r!/ybz/service/diff/(\d+)! do |oid|
     authorized?
     @service = Yabitz::Model::Service.get(oid.to_i)
