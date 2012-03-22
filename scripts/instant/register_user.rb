@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 require 'digest/sha1'
-require 'mysql'
+require 'mysql2'
 
 DATABASE_NAME = "yabitz_member_source"
 TABLE_NAME = "list"
@@ -39,10 +39,8 @@ if ARGV[2] == '-p'
 end
 
 def check_username_exists(conn, username)
-  st = conn.prepare("SELECT count(*) FROM #{TABLE_NAME} WHERE name=?")
-  st.execute(username)
-  result = st.fetch.first.to_i
-  st.free_result
+  username = conn.escape(conn)
+  result = conn.query("SELECT count(*) FROM #{TABLE_NAME} WHERE name='#{username}'").first['count(*)']
   return result > 0
 end
 
@@ -61,8 +59,14 @@ def insert_user_record(conn, username)
   badge = show_pronpt("社員番号(省略可): ")
   position = show_pronpt("役職(省略可): ")
   
-  st = conn.prepare("INSERT INTO #{TABLE_NAME} SET name=?,passhash=?,fullname=?,mailaddress=?,badge=?,position=?")
-  st.execute(username, Digest::SHA1.hexdigest(pass1st), fullname, mailaddress, badge, position)
+  username = conn.escape(username)
+  passhash = Digest::SHA1.hexdigest(pass1st)
+  fullname = conn.escape(fullname)
+  mailaddress = conn.escape(mailaddress)
+  badge = conn.escape(badge)
+  position = conn.escape(position)
+  sql = "INSERT INTO #{TABLE_NAME} SET name='#{username}',passhash='#{passhash}',fullname='#{fullname}',mailaddress='#{mailaddress}',badge='#{badge}',position='#{position}'"
+  conn.query(sql)
 end
 
 def change_user_record(conn, username)
@@ -70,17 +74,14 @@ def change_user_record(conn, username)
 
   password = show_pronpt("現在のパスワードを入力してください: ", true)
 
-  st = conn.prepare("SELECT count(*) FROM #{TABLE_NAME} WHERE name=? AND passhash=?")
-  st.execute(username, Digest::SHA1.hexdigest(password))
-  result = st.fetch.first.to_i
-  st.free_result
+  u = conn.escape(username)
+  p = Digest::SHA1.hexdigest(password)
+  result = conn.query("SELECT count(*) FROM #{TABLE_NAME} WHERE name='#{u}' AND passhash='#{p}'").first['count(*)']
 
   error_exit "パスワードが間違っています" if result != 1
   
-  st = conn.prepare("SELECT fullname,mailaddress,badge,position FROM #{TABLE_NAME} WHERE name=? AND passhash=?")
-  st.execute(username, Digest::SHA1.hexdigest(password))
-  x_fullname, x_mailaddress, x_badge, x_position = st.fetch
-  st.free_result
+  result = conn.prepare("SELECT fullname,mailaddress,badge,position FROM #{TABLE_NAME} WHERE name='#{u}' AND passhash='#{p}'").first
+  x_fullname, x_mailaddress, x_badge, x_position = result
 
   pass1st = show_pronpt("パスワードを変更する場合は入力してください: ", true)
   if pass1st.length > 0
@@ -101,12 +102,15 @@ def change_user_record(conn, username)
   position = show_pronpt("役職 [#{x_position}]: ")
   position = x_position if position.empty?
 
-  st = conn.prepare("UPDATE #{TABLE_NAME} SET passhash=?,fullname=?,mailaddress=?,badge=?,position=? WHERE name=?")
-  st.execute(Digest::SHA1.hexdigest(pass1st), fullname, mailaddress, badge, position, username)
+  px = Digest::SHA1.hexdigest(pass1st)
+  fx = conn.escape(fullname)
+  mx = conn.escape(mailaddress)
+  bx = conn.escape(badge)
+  pox = conn.escape(position)
+  conn.query("UPDATE #{TABLE_NAME} SET passhash='#{px}',fullname='#{fx}',mailaddress='#{mx}',badge='#{bx}',position='#{pox}' WHERE name='#{u}'")
 end
 
-conn = Mysql.connect(db_hostname, db_username, db_password, DATABASE_NAME)
-conn.charset = 'utf8'
+conn = Mysql2::Client.new(:host => db_hostname, :username => db_username, :password => db_password, :database => DATABASE_NAME)
 
 username = show_pronpt("ユーザ名を入力してください: ")
 if check_username_exists(conn, username)

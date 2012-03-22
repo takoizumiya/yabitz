@@ -31,7 +31,7 @@ describe Yabitz::Model::TagChain do
   
   it "に #tagchain として文字列のリストを正常に入出力できること、およびそのタグでクエリできること" do
     Stratum.conn do |c|
-      c.query("SELECT count(*) FROM #{@cls.tablename}").fetch_row.first.should eql("0")
+      c.query("SELECT count(*) FROM #{@cls.tablename}").first['count(*)'].should eql(0)
     end
 
     lambda {@t.tagchain = nil}.should_not raise_exception(Stratum::FieldValidationError)

@@ -1,7 +1,7 @@
 #!/usr/local/bin/ruby19
 # -*- coding: utf-8 -*-
 
-require 'mysql'
+require 'mysql2'
 
 # before require of schema.rb
 #  init.rb MUST be already loaded with $YABITZ_RUN_ON_TEST_ENVIRONMENT = true
@@ -25,17 +25,18 @@ module Yabitz::Schema
   end
 
   def self.conn()
-    Mysql.connect(*(Yabitz.config().dbparams))
+    server, user, pass, db, port, sock = Yabitz.config().dbparams
+    Mysql2::Client.new(:host => server, :port => port, :socket => sock, :username => user, :password => pass, :database => db)
   end
 
   def self.create_database(server, user, pass, db, port, sock, flg=nil)
-    c = Mysql.connect(server, user, pass, nil, port, sock, flg)
+    c = Mysql2::Client.new(:host => server, :port => port, :socket => sock, :username => user, :password => pass, :database => db)
     c.query("CREATE DATABASE #{db} DEFAULT CHARACTER SET 'utf8'")
     c.close()
   end
 
   def self.drop_database(server, user, pass, db, port, sock, flg=nil)
-    c = Mysql.connect(server, user, pass, nil, port, sock, flg)
+    c = Mysql2::Client.new(:host => server, :port => port, :socket => sock, :username => user, :password => pass, :database => db)
     c.query("DROP DATABASE IF EXISTS #{db}")
     c.close()
   end

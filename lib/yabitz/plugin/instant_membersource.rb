@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 require 'digest/sha1'
-require 'mysql'
+require 'mysql2'
 
 module Yabitz::Plugin
   module InstantMemberHandler
@@ -20,12 +20,11 @@ module Yabitz::Plugin
     def self.query(sql, *args)
       result = []
       begin
-        conn = Mysql.connect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DATABASE_NAME)
-        conn.charset = 'utf8'
-        st = conn.prepare(sql)
-        st.execute(*args)
-        st.each{|r| result.push(r.map{|v| v.respond_to?(:encode) ? v.encode('utf-8') : v})}
-        st.free_result
+        client = Mysql2::Client.new(:host => DB_HOSTNAME, :username => DB_USERNAME, :password => DB_PASSWORD, :database => DATABASE_NAME)
+        client.extend(Mysql2::Client::PseudoBindMixin)
+        client.bound_query(sql, args).each(:as => :array) {|r|
+          result.push(r.map{|v| v.respond_to?(:encode) ? v.encode('utf-8') : v})
+        }
         result
       rescue Mysql::BadDbError
         []
@@ -33,7 +32,10 @@ module Yabitz::Plugin
     end
 
     def self.authenticate(username, password, sourceip=nil)
-      results = self.query("SELECT fullname,name FROM #{TABLE_NAME} WHERE name=? AND passhash=?", username, Digest::SHA1.hexdigest(password))
+      results = self.query(
+                           "SELECT fullname,name FROM #{TABLE_NAME} WHERE name=? AND passhash=?",
+                           username, Digest::SHA1.hexdigest(password)
+                           )
       if results.size != 1
         return nil
       end
@@ -66,5 +68,40 @@ module Yabitz::Plugin
     def self.convert(values)
       Hash[*([MEMBERLIST_FIELDS, values].transpose)]
     end
+  end
+end
+
+module Mysql2::Client::PseudoBindMixin
+  def pseudo_bind(sql, values)
+    sql = sql.dup
+
+    placeholders = []
+    search_pos = 0
+    while pos = sql.index('?', search_pos)
+      placeholders.push(pos)
+      search_pos = pos + 1
+    end
+    raise ArgumentError, "mismatch between placeholders number and values arguments" if placeholders.length != values.length
+
+    while pos = placeholders.pop()
+      rawvalue = values.pop()
+      if rawvalue.nil?
+        sql[pos] = 'NULL'
+      elsif rawvalue.is_a?(Time)
+        val = rawvalue.strftime('%Y-%m-%d %H:%M:%S')
+        sql[pos] = "'" + val + "'"
+      else
+        val = @handler.escape(rawvalue.to_s)
+        sql[pos] = "'" + val + "'"
+      end
+    end
+    sql
+  end
+
+  def bound_query(sql, *values)
+    values = values.flatten
+    # pseudo prepared statements
+    return self.query(sql) if values.length < 1
+    self.query(self.pseudo_bind(sql, values))
   end
 end

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
 
-require 'mysql'
+require 'mysql2'
 
 module Yabitz
   module MemberSourceSchema
@@ -9,12 +9,12 @@ module Yabitz
     TABLE_NAME = "list"
     
     def self.main(hostname, username, password)
-      conn = Mysql.connect(hostname, username, password, nil)
+      conn = Mysql2::Client.new(:host => hostname, :username => username, :password => password)
       drop_database(conn)
       create_database(conn)
       conn.close()
 
-      conn = Mysql.connect(hostname, username, password, DATABASE_NAME)
+      conn = Mysql2::Client.new(:host => hostname, :username => username, :password => password, :database => DATABASE_NAME)
       create_tables(conn)
       conn.close()
     end

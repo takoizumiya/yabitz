@@ -17,11 +17,11 @@ describe Yabitz::Logging do
 
   it "によって認証ログがテーブルに記録されること" do
     Stratum.conn do |c|
-      c.query("SELECT count(*) FROM auth_log").fetch_row.first.should eql("0")
+      c.query("SELECT count(*) FROM auth_log").first['count(*)'].should eql(0)
       Yabitz::Logging.log_auth("tagomoris", "success")
       Yabitz::Logging.log_auth("moris", "failed")
       Yabitz::Logging.log_auth("tago", "forbidden")
-      c.query("SELECT count(*) FROM auth_log").fetch_row.first.should eql("3")
+      c.query("SELECT count(*) FROM auth_log").first['count(*)'].should eql(3)
     end
   end
 end

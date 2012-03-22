@@ -19,11 +19,10 @@ module Yabitz
 
       def self.build_tags_collection
         tags_date = {}
+        sql = "SELECT tagchain FROM tagchains WHERE tagchain IS NOT NULL AND head=? AND removed=?"
         Stratum.conn do |c|
-          st = c.prepare("SELECT tagchain FROM tagchains WHERE tagchain IS NOT NULL AND head=? AND removed=?")
-          st.execute(Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE)
-          st.each do |result|
-            tags = result.first.split(Stratum::Model::TAG_SEPARATOR)
+          c.query(sql, Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE).each do |result|
+            tags = result['tagchain'].split(Stratum::Model::TAG_SEPARATOR)
             tags.each do |tag|
               datetime = Yabitz::OpeTagGenerator.match(tag)
               next unless datetime

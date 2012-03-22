@@ -70,15 +70,19 @@ module Yabitz
 
       def self.count_hosts_without_hwinfo
         Stratum.conn do |c|
-          ret = c.query("SELECT count(*) FROM hosts WHERE hwinfo IS NULL AND head='#{Stratum::Model::BOOL_TRUE}' AND removed='#{Stratum::Model::BOOL_FALSE}'")
-          return ret.fetch_row.first.to_i
+          sql = <<"EOQ"
+SELECT count(*) FROM hosts WHERE hwinfo IS NULL AND head='#{Stratum::Model::BOOL_TRUE}' AND removed='#{Stratum::Model::BOOL_FALSE}'
+EOQ
+          return c.query(sql).first['count(*)']
         end
       end
 
       def count_hosts
         Stratum.conn do |c|
-          ret = c.query("SELECT count(*) FROM hosts WHERE hwinfo=#{self.oid} AND head='#{Stratum::Model::BOOL_TRUE}' AND removed='#{Stratum::Model::BOOL_FALSE}'")
-          return ret.fetch_row.first.to_i
+          sql = <<"EOQ"
+SELECT count(*) FROM hosts WHERE hwinfo=#{self.oid} AND head='#{Stratum::Model::BOOL_TRUE}' AND removed='#{Stratum::Model::BOOL_FALSE}'
+EOQ
+          return c.query(sql).first['count(*)']
         end
       end
     end
@@ -103,32 +107,29 @@ module Yabitz
 
       def self.os_in_hosts
         oslist = self.all.map(&:name)
+        sql = "SELECT os FROM hosts WHERE head='#{Stratum::Model::BOOL_TRUE}' AND removed='#{Stratum::Model::BOOL_FALSE}' GROUP BY os"
         Stratum.conn do |c|
-          ret = c.query("SELECT os FROM hosts WHERE head='#{Stratum::Model::BOOL_TRUE}' AND removed='#{Stratum::Model::BOOL_FALSE}' GROUP BY os")
-          ret.each do |row|
-            oslist.push(row.first) if not oslist.include?(row.first) and not row.first.nil? and not row.first.empty?
+          c.query(sql).each do |row|
+            os = row['os']
+            oslist.push(os) if not oslist.include?(os) and not os.nil? and not os.empty?
           end
         end
         return oslist
       end
 
       def self.count_hosts_without_os
+        sql = <<EOQ
+SELECT count(*) FROM hosts WHERE (os='' or os IS NULL) AND head='#{Stratum::Model::BOOL_TRUE}' AND removed='#{Stratum::Model::BOOL_FALSE}'
+EOQ
         Stratum.conn do |c|
-          stmt = c.prepare("SELECT count(*) FROM hosts WHERE (os='' or os IS NULL) AND head='#{Stratum::Model::BOOL_TRUE}' AND removed='#{Stratum::Model::BOOL_FALSE}'")
-          stmt.execute()
-          num = stmt.fetch.first.to_i
-          stmt.close
-          return num
+          return c.query(sql).first['count(*)']
         end
       end
 
       def self.count_hosts(name)
+        sql = "SELECT count(*) FROM hosts WHERE os=? AND head='#{Stratum::Model::BOOL_TRUE}' AND removed='#{Stratum::Model::BOOL_FALSE}'"
         Stratum.conn do |c|
-          stmt = c.prepare("SELECT count(*) FROM hosts WHERE os=? AND head='#{Stratum::Model::BOOL_TRUE}' AND removed='#{Stratum::Model::BOOL_FALSE}'")
-          stmt.execute(name)
-          num = stmt.fetch.first.to_i
-          stmt.close
-          return num
+          return c.query(sql, name).first['count(*)']
         end
       end
     end
