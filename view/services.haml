@@ -13,35 +13,52 @@
       - grepdetail_style = 'display: none;'
     %div#grepbox{:style => 'width:100%; padding:4px;'}
       %form#grepsimple{:name => "grepsimple", :action => '/ybz/services', :method => 'GET', :style => grepsimple_style}
-        %span 絞り込み条件
+        %span キーワード
         %input{:type => 'text', :name => 'q', :value => in_q}
         %input{:type => 'submit', :value => '絞り込み'}
         %button{:onclick => '$("#grepdetail").show();$("#grepsimple").hide();return false;'} 詳細条件指定
       %form#grepdetail{:name => "grepdetail", :action => '/ybz/service/search', :method => 'GET', :style => grepdetail_style}
+        %div#grepdisp
+          %span 絞り込み条件
+          -if in_q
+            -if in_q.length > 0
+              %dl.grepstat
+                %dt.grepkey キーワード
+                %dd.grepval #{in_q}
+          -for key in Yabitz::ServiceSearch::SEARCH_KEY_LIST
+            -if in_detail[key]
+              -if in_detail[key].length > 0
+                %dl.grepstat
+                  %dt.grepkey #{Yabitz::ServiceSearch.searchkey_title(key)}
+                  -if key == 'charging'
+                    %dd.grepval #{Yabitz::Model::Content.charging_title(in_detail[key])} 
+                  -else
+                    %dd.grepval #{in_detail[key]} 
+        %p{:style => 'clear: both;'}
         %table#greptable
           %tr
-            %th サービス名
+            %th #{Yabitz::ServiceSearch.searchkey_title('name')}
             %td
               %input{:type => 'text', :name => 'name', :value => in_detail['name'] || '' } 
-            %th コンテンツ名
+            %th #{Yabitz::ServiceSearch.searchkey_title('content')}
             %td
               %input{:type => 'text', :name => 'content', :value => in_detail['content'] || ''}
           %tr
-            %th 連絡先
+            %th #{Yabitz::ServiceSearch.searchkey_title('contact')}
             %td
               %input{:type => 'text', :name => 'contact', :value => in_detail['contact'] || ''}
-            %th ML
+            %th #{Yabitz::ServiceSearch.searchkey_title('mladdress')}
             %td
               %input{:type => 'text', :name => 'mladdress', :value => in_detail['mladdress'] || ''}
           %tr
-            %th サービスURL
+            %th #{Yabitz::ServiceSearch.searchkey_title('urls')}
             %td
               %input{:type => 'text', :name => 'urls', :value => in_detail['urls'] || ''}
-            %th メモ
+            %th #{Yabitz::ServiceSearch.searchkey_title('notes')}
             %td
               %input{:type => 'text', :name => 'notes', :value => in_detail['notes'] || ''}
           %tr
-            %th 課金設定
+            %th #{Yabitz::ServiceSearch.searchkey_title('charging')}
             %td
               %select{:name => 'charging'}
                 %option{:value => ''} 全て
@@ -51,7 +68,7 @@
                   - else 
                     - selected = false
                   %option{:value => stat, :selected => selected} #{Yabitz::Model::Content.charging_title(stat)}
-            %th 仮想化基盤
+            %th #{Yabitz::ServiceSearch.searchkey_title('hypervisors')}
             %td
               %select{:name => 'hypervisors'}
                 %option{:value => ''} 全て

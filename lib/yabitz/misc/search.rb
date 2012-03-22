@@ -121,6 +121,16 @@ module Yabitz
 
   module ServiceSearch
     SEARCH_KEY_LIST = ['name','content','charging','contact','mladdress','hypervisors','notes','urls']
+    SEARCH_KEY_LABEL = {
+      'name' => 'サービス名',
+      'content' => 'コンテンツ名',
+      'charging' => '課金設定',
+      'contact' => '連絡先',
+      'mladdress' => 'ML',
+      'hypervisors' => '仮想化基盤',
+      'notes' => 'メモ',
+      'urls' => 'サービスURL'
+    }
 
     def self.search(conditions={})
       services = Yabitz::Model::Service.all.map{|srv| srv.oid }
@@ -223,5 +233,10 @@ module Yabitz
 
       return Yabitz::Model::Service.get(rtn)
     end
+
+    def self.searchkey_title ( key ) 
+      return Yabitz::ServiceSearch::SEARCH_KEY_LABEL[key] ? Yabitz::ServiceSearch::SEARCH_KEY_LABEL[key] : nil
+    end
+
   end
 end
