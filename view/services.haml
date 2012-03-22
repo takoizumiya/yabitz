@@ -1,16 +1,70 @@
 -# coding: utf-8
 - @service_single ||= false
-- charging_status_list = Yabitz::Model::Content::CHARGING_LABELS
 
 %div#toolbox_spacer_top
 %div#toolbox
   %div&= "表示：" + @page_title
   -if enable_grep_form
+    - if in_detail.keys.size > 0
+      - grepsimple_style = 'display: none;'
+      - grepdetail_style = 'display: block;'
+    - else
+      - grepsimple_style = 'display: block;'
+      - grepdetail_style = 'display: none;'
     %div#grepbox{:style => 'width:100%; padding:4px;'}
-      %form#grepform{:name => "grepform", :action => '/ybz/services', :method => 'GET'}
+      %form#grepsimple{:name => "grepsimple", :action => '/ybz/services', :method => 'GET', :style => grepsimple_style}
         %span 絞り込み条件
         %input{:type => 'text', :name => 'q', :value => in_q}
         %input{:type => 'submit', :value => '絞り込み'}
+        %button{:onclick => '$("#grepdetail").show();$("#grepsimple").hide();return false;'} 詳細条件指定
+      %form#grepdetail{:name => "grepdetail", :action => '/ybz/service/search', :method => 'GET', :style => grepdetail_style}
+        %table#greptable
+          %tr
+            %th サービス名
+            %td
+              %input{:type => 'text', :name => 'name', :value => in_detail['name'] || '' } 
+            %th コンテンツ名
+            %td
+              %input{:type => 'text', :name => 'content', :value => in_detail['content'] || ''}
+          %tr
+            %th 連絡先
+            %td
+              %input{:type => 'text', :name => 'contact', :value => in_detail['contact'] || ''}
+            %th ML
+            %td
+              %input{:type => 'text', :name => 'mladdress', :value => in_detail['mladdress'] || ''}
+          %tr
+            %th サービスURL
+            %td
+              %input{:type => 'text', :name => 'urls', :value => in_detail['urls'] || ''}
+            %th メモ
+            %td
+              %input{:type => 'text', :name => 'notes', :value => in_detail['notes'] || ''}
+          %tr
+            %th 課金設定
+            %td
+              %select{:name => 'charging'}
+                %option{:value => ''} 全て
+                - for stat in Yabitz::Model::Content::CHARGING_LABELS
+                  - if defined? in_detail['charging'] 
+                    - selected = stat == in_detail['charging'] ? true : false
+                  - else 
+                    - selected = false
+                  %option{:value => stat, :selected => selected} #{Yabitz::Model::Content.charging_title(stat)}
+            %th 仮想化基盤
+            %td
+              %select{:name => 'hypervisors'}
+                %option{:value => ''} 全て
+                - if defined? in_detail['hypervisors']
+                  %option{:value => 'true', :selected => (in_detail['hypervisors'] == 'true')} TRUE
+                  %option{:value => 'false', :selected => (in_detail['hypervisors'] == 'false')} FALSE
+                - else
+                  %option{:value => 'true'} TRUE
+                  %option{:value => 'false'} FALSE
+          %tr
+            %td{:colspan => 4, :align => 'right'}
+              %input{:type => 'submit', :value => '絞り込み'}
+              %button{:onclick => '$("#grepdetail").hide();$("#grepsimple").show();return false;'} 簡易検索
   - if @isadmin
     %div
       選択したサービスへの操作: 

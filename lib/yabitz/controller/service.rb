@@ -22,6 +22,7 @@ class Yabitz::Application < Sinatra::Base
       @page_title = "サービス"
       haml :services, :locals => {
         :in_q => in_q,
+        :in_detail => {},
         :enable_grep_form => true
       }
     end
@@ -29,7 +30,6 @@ class Yabitz::Application < Sinatra::Base
 
   get %r!/ybz/service/search(\.json|\.csv)?! do |ctype|
     authorized?
-    in_q = request.params['q']
     @services = Yabitz::ServiceSearch.search(request.params).sort
     Stratum.preload(@services, Yabitz::Model::Service)
 
@@ -39,8 +39,10 @@ class Yabitz::Application < Sinatra::Base
       @services.to_json
     else
       @page_title = "サービス"
+      p request.params
       haml :services, :locals => {
-        :in_q => in_q,
+        :in_q => nil,
+        :in_detail => request.params,
         :enable_grep_form => true
       }
     end
@@ -95,6 +97,7 @@ class Yabitz::Application < Sinatra::Base
       @page_title = "サービス"
       haml :services, :locals => { 
         :in_q => nil,
+        :in_detail => {},
         :enable_grep_form => false
       }
     end
@@ -131,6 +134,7 @@ class Yabitz::Application < Sinatra::Base
       Stratum.preload(@services, Yabitz::Model::Service)
       haml :services, :locals => { 
         :in_q => nil,
+        :in_detail => {},
         :enable_grep_form => false
       }
     end
