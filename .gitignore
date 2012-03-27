@@ -2,4 +2,5 @@ lib/yabitz/plugin/*_plugins
 .sass-cache
 log
 tmp/pids
+.tester_usernames
 Gemfile.lock

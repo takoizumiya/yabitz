@@ -8,12 +8,16 @@ module Yabitz::Plugin
     def self.plugin_priority
       1
     end
-
+    
+    TesterFile = File.expand_path(File.dirname(__FILE__) + "/../../../.tester_usernames")
 
     # MUST returns full_name (as String)
     # if authentication failed, return nil
     def self.authenticate(username, password, sourceip=nil)
-      if Yabitz.config().name == :development and username =~ /\Atest/
+      names = open(TesterFile) do |f|
+        f.readlines.map(&:chomp)
+      end
+      if Yabitz.config().name == :development and (username =~ /\Atest/ or names.include?(username))
         return username
       end
       nil
