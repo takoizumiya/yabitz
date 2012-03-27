@@ -214,13 +214,20 @@ module Yabitz::Checker
     }
   end
 
-  def self.systemcheck
+  def self.systemcheck(type=:all)
+    types = case type
+            when :all
+              [:host, :dnsname, :ipaddress, :rackunit]
+            else
+              [type]
+            end
+
     # check: cross reference mismatch (ref and reflist)
-    hosts = Yabitz::Model::Host.all
+    hosts = types.include?(:host) ? Yabitz::Model::Host.all : []
     # services = Yabitz::Model::Service.all
-    dnsnames = Yabitz::Model::DNSName.all
-    ipaddrs = Yabitz::Model::IPAddress.all
-    rackunits = Yabitz::Model::RackUnit.all
+    dnsnames = types.include?(:dnsname) ? Yabitz::Model::DNSName.all : []
+    ipaddrs = types.include?(:ipaddress) ? Yabitz::Model::IPAddress.all : []
+    rackunits = types.include?(:rackunit) ? Yabitz::Model::RackUnit.all : []
     # contacts = Yabitz::Model::Contact.all
     # bricks = Yabitz::Model::Brick.all
 
