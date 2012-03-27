@@ -216,16 +216,92 @@ module Yabitz::Checker
 
   def self.systemcheck
     # check: cross reference mismatch (ref and reflist)
-    # check: uniqueness of ipaddress, rackunit, dnsname, etc
-    # check: type and parent/children mismatch
-    if type.virtualmachine? and not host.parent.children_by_id.include?(host.oid)
-      relation_mismatches_from_child.push(host)
-    end
-    # check: mismatch parent-children reference mismatch
-    if type.hypervisor? and host.children.size > 0
-      unless host.children.inject(true){|r, c| r and c.parent_by_id == host.oid}
-        relation_mismatches_from_parent.push(host)
+    hosts = Yabitz::Model::Host.all
+    # services = Yabitz::Model::Service.all
+    dnsnames = Yabitz::Model::DNSName.all
+    ipaddrs = Yabitz::Model::IPAddress.all
+    rackunits = Yabitz::Model::RackUnit.all
+    # contacts = Yabitz::Model::Contact.all
+    # bricks = Yabitz::Model::Brick.all
+
+    # obj1 has reference to obj2 (in field 'x'), but obj2 has no reference
+    missing_references = [] # obj1, x, obj2
+    hosts.each do |h|
+      if h.parent_by_id
+        p = Yabitz::Model::Host.get(h.parent_by_id)
+        if not p then  missing_references.push([h, 'parent', "nil (for oid #{h.parent_by_id})"])
+        elsif not p.children_by_id.include?(h.oid) then missing_references.push([h, 'parent', p])
+        end
+      end
+      h.children_by_id.each do |cid|
+        c = Yabitz::Model::Host.get(cid)
+        if not c then missing_references.push([h, 'children', "nil (for oid #{cid})"])
+        elsif not c.parent_by_id == h.oid then missing_references.push([h, 'children', c])
+        end
+      end
+      if h.rackunit_by_id
+        r = Yabitz::Model::RackUnit.get(h.rackunit_by_id)
+        if not r then missing_references.push([h, 'rackunit', "nil (for oid #{h.rackunit_by_id})"])
+        elsif not r.hosts_by_id.include?(h.oid) then missing_references.push([h, 'rackunit', r])
+        end
+      end
+      h.dnsnames_by_id.each do |did|
+        d = Yabitz::Model::DNSName.get(did)
+        if not d then missing_references.push([h, 'dnsname', "nil (for oid #{did})"])
+        elsif not d.hosts_by_id.include?(h.oid) then missing_references.push([h, 'dnsname', d])
+        end
+      end
+      h.localips_by_id.each do |lid|
+        l = Yabitz::Model::IPAddress.get(lid)
+        if not l then missing_references.push([h, 'localips', "nil (for oid #{lid})"])
+        elsif not l.hosts_by_id.include?(h.oid) then missing_references.push([h, 'localips', l])
+        end
+      end
+      h.globalips_by_id.each do |gid|
+        g = Yabitz::Model::IPAddress.get(gid)
+        if not g then missing_references.push([h, 'globalips', "nil (for oid #{gid})"])
+        elsif not g.hosts_by_id.include?(h.oid) then missing_references.push([h, 'globalips', g])
+        end
+      end
+      h.virtualips_by_id.each do |vid|
+        v = Yabitz::Model::IPAddress.get(vid)
+        if not v then missing_references.push([h, 'virtualips', "nil (for oid #{vid})"])
+        elsif not v.hosts_by_id.include?(h.oid) then missing_references.push([h, 'virtualips', v])
+        end
       end
     end
+    rackunits.each do |r|
+      r.hosts_by_id.each do |hid|
+        h = Yabitz::Model::Host.get(hid)
+        if not h then missing_references.push([r, 'hosts', "nil (for oid #{hid})"])
+        elsif not h.dnsnames_by_id.include?(r.oid) then missing_references.push([r, 'hosts', h])
+        end
+      end
+    end
+    dnsnames.each do |d|
+      d.hosts_by_id.each do |hid|
+        h = Yabitz::Model::Host.get(hid)
+        if not h then missing_references.push([d, 'hosts', "nil (for oid #{hid})"])
+        elsif not h.dnsnames_by_id.include?(d.oid) then missing_references.push([d, 'hosts', h])
+        end
+      end
+    end
+    ipmethods = [:localips_by_id,:globalips_by_id,:virtualips_by_id]
+    ipaddrs.each do |ip|
+      ip.hosts_by_id.each do |hid|
+        h = Yabitz::Model::Host.get(hid)
+        if not h then missing_references.push([ip, 'hosts', "nil (for oid #{hid})"])
+        elsif not ipmethods.map{|m| h.send(m)}.flatten.include?(ip.oid) then missing_references([ip, 'hosts', h])
+        end
+      end
+    end
+    
+    # check: uniqueness of ipaddress, rackunit, dnsname, etc
+    # check: type and parent/children mismatch
+    # check: mismatch parent-children reference mismatch
+
+    {
+      :missing_references => missing_references
+    }
   end
 end
