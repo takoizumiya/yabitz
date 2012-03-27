@@ -13,7 +13,7 @@ module Yabitz::Plugin
     # MUST returns full_name (as String)
     # if authentication failed, return nil
     def self.authenticate(username, password, sourceip=nil)
-      if Yabitz.config().name == :development and username =~ /\Atest/
+      if Yabitz.config().name == :development and (username =~ /\Atest/ or username == 'tagomoris')
         return username
       end
       nil
