@@ -281,7 +281,7 @@ module Yabitz::Checker
       r.hosts_by_id.each do |hid|
         h = Yabitz::Model::Host.get(hid)
         if not h then missing_references.push([r, 'hosts', "nil (for oid #{hid})"])
-        elsif not h.rackunit_by_id.include?(r.oid) then missing_references.push([r, 'hosts', h])
+        elsif not h.rackunit_by_id == r.oid then missing_references.push([r, 'hosts', h])
         end
       end
     end
