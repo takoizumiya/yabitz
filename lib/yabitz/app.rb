@@ -83,7 +83,8 @@ class Yabitz::Application < Sinatra::Base
 
   get '/ybz/systemchecker' do 
     authorized?
-    "ok" #TODO write!
+    @result = Yabitz::Checker.systemcheck
+    haml :systemchecker
   end
 
   get '/ybz/yabitz.css' do

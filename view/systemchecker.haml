@@ -1,0 +1,24 @@
+-# coding: utf-8
+
+%div#toolbox_spacer_top
+%div#toolbox
+  %div データ整合性チェック(システム面)
+%div#toolbox_spacer_bottom
+%table.maintable
+  %tr.checker_item_head
+    %th{:style => "border-left: 1px solid;"}
+      %img{:src => "/images/1x1.gif"}
+    %th{:colspan => 2}
+      = "reference mismatched (rightward reference exists, but leftward doesn't not)"
+    %th{:style => "border-right: 1px solid;"}
+      %img{:src => "/images/1x1.gif"}
+  - @result[:missing_references].each do |obj1, field, obj2|
+    %tr.checker_item
+      %td.td_line_head
+        %img{:src => "/images/1x1.gif"}
+      %td.checker_target
+        &= "#{obj1} (#{obj1.oid})"
+      %td.checker_info
+        &= "field: #{field}, dest: #{obj2} (#{obj2.oid})"
+      %td.td_line_term
+        %img{:src => "/images/1x1.gif"}
