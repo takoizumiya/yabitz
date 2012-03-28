@@ -99,14 +99,8 @@ class Yabitz::Application < Sinatra::Base
     end
   end
 
-  get %r!/ybz/hosts/suggest(\.json|\.csv)?! do |ctype|
+  get %r!/ybz/hosts/suggest/(\d+)(\.json|\.csv)?! do |oid, ctype|
     authorized?
-
-#    @hosts = Yabitz::Suggest.hypervisors().sort{ |a,b|
-#        b.memory ? ( b.memory.match( mem_ptn ) ? b.memory.match(mem_ptn)[1].to_i : 1 ) : 1 <=> a.memory ? ( a.memory.match( mem_ptn ) ? a.memory.match(mem_ptn)[1].to_i : 1 ) : 1
-#    }.sort{ |a,b|
-#        b.cpu ? ( b.cpu.match(cpu_ptn) ? b.cpu.match(cpu_ptn)[1].to_i : 1 ) : 1 <=> a.cpu ? ( a.cpu.match(cpu_ptn) ? a.cpu.match(cpu_ptn)[1].to_i : 1 ) : 1 
-#    }
 
     mem_normalizer = lambda { |mem|
       rtn = 0;
@@ -132,9 +126,12 @@ class Yabitz::Application < Sinatra::Base
       return rtn
     }
 
-    @hosts = Yabitz::Model::Service.query(:hypervisors => true).map do |service|
-      Yabitz::Model::Host.query(:service => service.oid, :status => Yabitz::Model::Host::STATUS_IN_SERVICE);
-    end.flatten.sort{ | a, b |
+    @srv = Yabitz::Model::Service.get(oid.to_i)
+    pass unless @srv # object not found -> HTTP 404
+
+    @hosts = Yabitz::Model::Host.query(:service => @srv).select{|h| 
+      h.status == Yabitz::Model::Host::STATUS_IN_SERVICE
+    }.flatten.sort{ | a, b |
       mem_normalizer.call( b.memory ) <=> mem_normalizer.call( a.memory )
     }.sort{ | a, b |
       cpu_normalizer.call( b.cpu ) <=> cpu_normalizer.call( a.cpu )
@@ -150,7 +147,7 @@ class Yabitz::Application < Sinatra::Base
     else
       @page_title = "仮想化基盤ホスト一覧"
       # @copypastable = true
-      haml :hosts, :locals => { :cond => "仮想化基盤ホスト:余裕のある順" }
+      haml :hosts, :locals => { :cond => "仮想化基盤ホスト サービス:#{@srv.name}" }
     end
 
   end
