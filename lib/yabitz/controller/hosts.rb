@@ -126,12 +126,18 @@ class Yabitz::Application < Sinatra::Base
       return rtn
     }
 
+    gip_normalizer = lambda { |gip|
+      return gip.size > 0 ? 1 : 0;
+    }
+
     @srv = Yabitz::Model::Service.get(oid.to_i)
     pass unless @srv # object not found -> HTTP 404
 
     @hosts = Yabitz::Model::Host.query(:service => @srv).select{|h| 
       h.status == Yabitz::Model::Host::STATUS_IN_SERVICE
     }.flatten.sort{ | a, b |
+      gip_normalizer.call( b.globalips ) <=> gip_normalizer.call( a.globalips )
+    }.sort{ | a, b |
       mem_normalizer.call( b.memory ) <=> mem_normalizer.call( a.memory )
     }.sort{ | a, b |
       cpu_normalizer.call( b.cpu ) <=> cpu_normalizer.call( a.cpu )
