@@ -28,10 +28,10 @@ systemchecker_result = Yabitz::Checker.systemcheck(type)
 
 systemchecker_result[:missing_references].each do |obj1, field, obj2|
   if obj2.respond_to?(:hosts)
-    obj2.hosts += [obj1]
+    obj2.hosts_by_id += [obj1.oid]
     obj2.save
   elsif obj1.respond_to?(:hosts)
-    obj1.hosts = obj1.hosts.select{|h| h.oid != obj2.oid}
+    obj1.hosts_by_id = obj1.hosts_by_id.select{|oid| oid != obj2.oid}
     obj1.save
   end
 end
