@@ -14,8 +14,11 @@ module Yabitz::Plugin
     # MUST returns full_name (as String)
     # if authentication failed, return nil
     def self.authenticate(username, password, sourceip=nil)
-      names = open(TesterFile) do |f|
-        f.readlines.map(&:chomp)
+      names = []
+      if File.exist?(TesterFile)
+        names = open(TesterFile){|f|
+          f.readlines.map(&:chomp)
+        }
       end
       if Yabitz.config().name == :development and (username =~ /\Atest/ or names.include?(username))
         return username
