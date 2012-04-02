@@ -32,8 +32,8 @@ module Yabitz
   class HyperVisor
     def initialize ( host )
       @host = host
-      @memory_assigned = host.children.map{|child|Yabitz::UnitNormalizer.memory(child.memory)}.inject{|x,y|x+y}
-      @cpu_assigned = host.children.map{|child|Yabitz::UnitNormalizer.cpu(child.cpu)}.inject{|x,y|x+y}
+      @memory_assigned = host.children.map{|child|Yabitz::UnitNormalizer.memory(child.memory)}.inject{|x,y|x+y} || 0
+      @cpu_assigned = host.children.map{|child|Yabitz::UnitNormalizer.cpu(child.cpu)}.inject{|x,y|x+y} || 0
     end
     def memory_unassigned ()
       return Yabitz::UnitNormalizer.memory( @host.memory ) - @memory_assigned
