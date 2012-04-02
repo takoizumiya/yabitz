@@ -1,0 +1,61 @@
+-# coding: utf-8
+
+%tr.host_outline.selectable.hypervisor{:id => "#{hypervisor.host.oid}", :title => h(hypervisor.host.display_name)}
+  %td.host_status_in_service
+    %div{:style => "padding-top: 2em;"}
+  %td.host_displayname
+    &= hypervisor.host.display_name
+    - if hypervisor.host.dnsnames_by_id.size > 1
+      %img{:border => "0", :src => "/images/multi_records.png", :width => "16", :height => "16", :alt => "他", :style => "vertical-align: middle;"}
+    - ips = hypervisor.host.globalips.map{|i| '(g)' + i.address}
+    - if ips
+      %ul
+        - if ips.size > 0
+          %li= ips[0]
+        - if ips.size > 1
+          %li= ips[1]
+  %td.host_ipaddresses_multi
+    - if ips.size > 2
+      %img{:border => "0", :src => "/images/multi_records.png", :width => "16", :height => "16", :alt => "他", :style => "vertical-align: middle;"}
+    - else
+      %img{:src => "/images/1x1.gif"}
+  %td.td_padding
+    %img{:src => "/images/1x1.gif"}
+  %td.td_padding.resources
+    - cpu_unassigned = hypervisor.cpu_unassigned > 1 ? hypervisor.cpu_unassigned : 0
+    - memory_unassigned = hypervisor.memory_unassigned > 1 ? hypervisor.memory_unassigned : 0
+    - if memory_unassigned >= 1024
+      - memory_unassigned = memory_unassigned / 1024
+      - memory_unassigned = memory_unassigned.to_s + 'GB'
+    - else
+      - memory_unassigned = memory_unassigned.to_s + 'MB'
+    %ul 
+      %li #{cpu_unassigned}cores free
+      %li #{memory_unassigned} free
+  %td.td_padding
+    %img{:src => "/images/1x1.gif"}
+  %td.host_service
+    &= hypervisor.host.service.to_s
+  %td.td_padding_narrow
+    %img{:src => "/images/1x1.gif"}
+  %td.host_hwid
+    &= hypervisor.host.hwid
+    %img{:src => "/images/1x1.gif"}
+  %td.td_padding_narrow
+    %img{:src => "/images/1x1.gif"}
+  %td.host_rackunit
+    &= hypervisor.host.rackunit.to_s
+    %img{:src => "/images/1x1.gif"}
+  %td.host_alert
+    - alertplugin = Yabitz::Plugin.get(:hostalerts).first
+    - if alertplugin
+      &= alertplugin.alert_face(hypervisor.host.alert)
+    - elsif hypervisor.host.alert
+      [?]
+    - else
+      = ''
+  %td.td_padding_narrow
+    %img{:src => "/images/1x1.gif"}
+  %td.td_line_term
+    %img{:src => "/images/1x1.gif"}
+

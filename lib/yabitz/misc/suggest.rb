@@ -3,44 +3,57 @@
 require_relative '../model'
 
 module Yabitz
+  module UnitNormalizer
+    def self.memory ( mem )
+      rtn = 0;
+      mem_ptn = /^(\d+?)(G|M)/
+      if mem
+        if mem.match(mem_ptn)
+          m = mem.match(mem_ptn)
+          rtn = m[2] == 'G' ? m[1].to_i * 1024 : m[1].to_i
+        end 
+      end
+      return rtn
+    end
+
+    def self.cpu ( cpu )
+      rtn = 1;
+      cpu_ptn = /^(\d+)\s/
+      if cpu
+        if cpu.match(cpu_ptn)
+          m = cpu.match(cpu_ptn)
+          rtn = m[1].to_i
+        end
+      end
+      return rtn
+    end
+  end
+
+  class HyperVisor
+    def initialize ( host )
+      @host = host
+      @memory_assigned = host.children.map{|child|Yabitz::UnitNormalizer.memory(child.memory)}.inject{|x,y|x+y}
+      @cpu_assigned = host.children.map{|child|Yabitz::UnitNormalizer.cpu(child.cpu)}.inject{|x,y|x+y}
+    end
+    def memory_unassigned ()
+      return Yabitz::UnitNormalizer.memory( @host.memory ) - @memory_assigned
+    end
+    def cpu_unassigned ()
+      return Yabitz::UnitNormalizer.cpu( @host.cpu ) - @cpu_assigned
+    end
+    attr_reader :host, :memory_assigned, :cpu_assigned
+  end
+
   module Suggest
     def self.hosts ( srv )
-      mem_normalizer = lambda { |mem|
-        rtn = 0;
-        mem_ptn = /^(\d+?)(G|M)/
-        if mem
-          if mem.match(mem_ptn)
-            m = mem.match(mem_ptn)
-            rtn = m[2] == 'G' ? m[1].to_i * 1024 : m[1].to_i
-          end 
-        end
-        return rtn
-      }
-
-      cpu_normalizer = lambda { |cpu|
-        rtn = 0;
-        cpu_ptn = /^(\d+)\s/
-        if cpu
-          if cpu.match(cpu_ptn)
-            m = cpu.match(cpu_ptn)
-            rtn = m[1].to_i
-          end
-        end
-        return rtn
-      }
-
-      gip_normalizer = lambda { |gip|
-        return gip.size > 0 ? 1 : 0;
-      }
-
-      hosts = Yabitz::Model::Host.query(:service => srv).select{|h| 
+      return Yabitz::Model::Host.query(:service => srv).select{|h| 
         h.status == Yabitz::Model::Host::STATUS_IN_SERVICE
-      }.flatten.sort{ | a, b |
-        gip_normalizer.call( b.globalips ) <=> gip_normalizer.call( a.globalips )
+      }.flatten.map{ | host |
+        Yabitz::HyperVisor.new( host )
       }.sort{ | a, b |
-        mem_normalizer.call( b.memory ) <=> mem_normalizer.call( a.memory )
+        b.memory_unassigned <=> a.memory_unassigned
       }.sort{ | a, b |
-        cpu_normalizer.call( b.cpu ) <=> cpu_normalizer.call( a.cpu )
+        b.cpu_unassigned <=> a.cpu_unassigned
       }
     end
   end

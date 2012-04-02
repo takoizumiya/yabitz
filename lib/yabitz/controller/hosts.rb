@@ -117,7 +117,7 @@ class Yabitz::Application < Sinatra::Base
     else
       @page_title = "仮想化基盤ホスト一覧"
       # @copypastable = true
-      haml :hosts, :locals => { :cond => "仮想化基盤ホスト サービス:#{@srv.name}" }
+      haml :hypervisors, :locals => { :cond => "仮想化基盤ホスト サービス:#{@srv.name}" }
     end
 
   end

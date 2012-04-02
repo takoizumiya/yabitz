@@ -110,6 +110,39 @@ module Sinatra
   end
   helpers HostCategorize
 
+  module HyperVisorCategorize
+    def categorize_hypervisor(hypervisors)
+      result = {}
+      Yabitz::Model::Host::STATUS_LIST.each do |s|
+        result[s] = {:list => [], :hw => {'不明' => 0}, :os => {'不明' => 0}}
+      end
+      result['total'] = {:hw => {'不明' => 0}, :os => {'不明' => 0}}
+      hypervisors.each do |hypervisor|
+        host = hypervisor.host
+        result[host.status][:list].push(host)
+        if host.hwinfo
+          result[host.status][:hw][host.hwinfo.name] ||= 0
+          result[host.status][:hw][host.hwinfo.name] += 1
+          result['total'][:hw][host.hwinfo.name] ||= 0
+          result['total'][:hw][host.hwinfo.name] += 1
+        else
+          result[host.status][:hw]['不明'] += 1
+          result['total'][:hw]['不明'] += 1
+        end
+        if host.os and not host.os.empty?
+          result[host.status][:os][host.os] ||= 0
+          result[host.status][:os][host.os] += 1
+          result['total'][:os][host.os] ||= 0
+          result['total'][:os][host.os] += 1
+        else
+          result[host.status][:os]['不明'] += 1
+        end
+      end
+      result
+    end
+  end
+  helpers HyperVisorCategorize
+
   module PartialHelper
     def partial(template, *args)
       options = args.last.is_a?(Hash) ? args.pop : {}
