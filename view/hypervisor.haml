@@ -2,7 +2,7 @@
 
 %tr.host_outline.selectable.hypervisor{:id => "#{hypervisor.host.oid}", :title => h(hypervisor.host.display_name)}
   %td.host_status_in_service
-    %div{:style => "padding-top: 2em;"}
+    %div{:style => "padding-top: 3em;"}
   %td.host_displayname
     &= hypervisor.host.display_name
     - if hypervisor.host.dnsnames_by_id.size > 1
