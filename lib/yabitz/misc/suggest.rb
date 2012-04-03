@@ -63,8 +63,11 @@ module Yabitz
       return {
         :host => @host.to_tree,
         :memory_assigned => @memory_assigned.to_s + 'MB',
+        :memory_unassigned => self.memory_unassigned.to_s + 'MB',
         :cpu_assigned => @cpu_assigned.to_s + 'cores',
-        :disk_assigned => @disk_assigned.to_s + 'GB'
+        :cpu_unassigned => self.cpu_unassigned.to_s + 'cores',
+        :disk_assigned => @disk_assigned.to_s + 'GB',
+        :disk_unassigned => self.disk_unassigned.to_s + 'GB'
       }
     end
   end
