@@ -6,7 +6,7 @@ module Yabitz
   module UnitNormalizer
     def self.memory ( mem )
       rtn = 0;
-      mem_ptn = /^(\d+?)(G|M)/
+      mem_ptn = /^([\d\.]+?)(G|M)/
       if mem
         if mem.match(mem_ptn)
           m = mem.match(mem_ptn)
@@ -27,6 +27,19 @@ module Yabitz
       end
       return rtn
     end
+
+    def self.disk ( disk )
+      rtn = 0;
+      disk_ptn = /^([\d\.]+)(G|T)/
+      if disk
+        disk.gsub(/\s/,"")
+        if disk.match(disk_ptn)
+          m = disk.match(disk_ptn)
+          rtn = m[2] == 'T' ? m[1].to_i * 1024 : m[1].to_i
+        end
+      end
+      return rtn
+    end
   end
 
   class HyperVisor
@@ -34,6 +47,7 @@ module Yabitz
       @host = host
       @memory_assigned = host.children.map{|child|Yabitz::UnitNormalizer.memory(child.memory)}.inject{|x,y|x+y} || 0
       @cpu_assigned = host.children.map{|child|Yabitz::UnitNormalizer.cpu(child.cpu)}.inject{|x,y|x+y} || 0
+      @disk_assigned = host.children.map{|child|Yabitz::UnitNormalizer.disk(child.disk)}.inject{|x,y|x+y} || 0
     end
     attr_reader :host, :memory_assigned, :cpu_assigned
     def memory_unassigned ()
@@ -41,6 +55,9 @@ module Yabitz
     end
     def cpu_unassigned ()
       return Yabitz::UnitNormalizer.cpu( @host.cpu ) - @cpu_assigned
+    end
+    def disk_unassigned ()
+      return Yabitz::UnitNormalizer.disk( @host.disk ) - @disk_assigned
     end
     def to_tree
       return {

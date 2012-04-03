@@ -29,9 +29,16 @@
       - memory_unassigned = memory_unassigned.to_s + 'GB'
     - else
       - memory_unassigned = memory_unassigned.to_s + 'MB'
+    - disk_unassigned = hypervisor.disk_unassigned > 1 ? hypervisor.disk_unassigned : 0
+    - if disk_unassigned >= 1024
+      - disk_unassigned = disk_unassigned / 1024
+      - disk_unassigned = disk_unassigned.to_s + 'TB'
+    - else
+      - disk_unassigned = disk_unassigned.to_s + 'GB'
     %ul 
-      %li #{cpu_unassigned}cores free
-      %li #{memory_unassigned} free
+      %li CPU #{cpu_unassigned}cores free
+      %li MEM #{memory_unassigned} free
+      %li HDD #{disk_unassigned} free
   %td.td_padding
     %img{:src => "/images/1x1.gif"}
   %td.host_service
