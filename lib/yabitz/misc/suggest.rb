@@ -35,13 +35,20 @@ module Yabitz
       @memory_assigned = host.children.map{|child|Yabitz::UnitNormalizer.memory(child.memory)}.inject{|x,y|x+y} || 0
       @cpu_assigned = host.children.map{|child|Yabitz::UnitNormalizer.cpu(child.cpu)}.inject{|x,y|x+y} || 0
     end
+    attr_reader :host, :memory_assigned, :cpu_assigned
     def memory_unassigned ()
       return Yabitz::UnitNormalizer.memory( @host.memory ) - @memory_assigned
     end
     def cpu_unassigned ()
       return Yabitz::UnitNormalizer.cpu( @host.cpu ) - @cpu_assigned
     end
-    attr_reader :host, :memory_assigned, :cpu_assigned
+    def to_tree
+      return {
+        :host => @host.to_tree,
+        :memory_assigned => @memory_assigned,
+        :cpu_assigned => @cpu_assigned
+      }
+    end
   end
 
   module Suggest

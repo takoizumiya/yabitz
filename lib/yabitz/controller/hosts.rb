@@ -110,10 +110,10 @@ class Yabitz::Application < Sinatra::Base
     case ctype
     when '.json'
       response['Content-Type'] = 'application/json'
-      @hosts.to_json
+      @hosts.map{|hv|hv.to_tree}.to_json
     when '.csv'
       response['Content-Type'] = 'text/csv'
-      Yabitz::Model::Host.build_raw_csv(Yabitz::Model::Host::CSVFIELDS_L, @hosts)
+      Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hosts.map{|hv|hv.host} )
     else
       @page_title = "仮想化基盤ホスト一覧"
       # @copypastable = true
