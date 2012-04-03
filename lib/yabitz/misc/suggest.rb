@@ -62,8 +62,9 @@ module Yabitz
     def to_tree
       return {
         :host => @host.to_tree,
-        :memory_assigned => @memory_assigned,
-        :cpu_assigned => @cpu_assigned
+        :memory_assigned => @memory_assigned.to_s + 'MB',
+        :cpu_assigned => @cpu_assigned.to_s + 'cores',
+        :disk_assigned => @disk_assigned.to_s + 'GB'
       }
     end
   end
