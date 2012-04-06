@@ -129,13 +129,14 @@ $(function(){
         else {
             sortbar = appendSortbarAfter( $('tr#voidtarget') );
         }
-        sortbar.attr('target', 'host_status_in_service');
+        sortbar.attr( 'target', $(top_tr.children('td').get(0)).attr('class') );
         
         $('tr#voidtarget').remove();
     }
     $('th.sortbtn').click(function(){
         sortByColumn( this );
     });
+    sortByUrl();
 
 });
 
@@ -999,6 +1000,8 @@ function sortByColumn ( e ) {
         target.sort(function(a,b){
             return ( sort_field_fetch(b) > sort_field_fetch(a) ? 1 : -1 );
         });
+        var psUrl = buildSortUrl( target_column, 'desc', target_class );
+        history.pushState(null, elem.text()+':'+'降順', psUrl);
     }
     else if( elem.attr('order') == 'desc' ) {
         elem.attr('order','asc');
@@ -1007,6 +1010,8 @@ function sortByColumn ( e ) {
         target.sort(function(a,b){
             return ( sort_field_fetch(a) > sort_field_fetch(b) ? 1 : -1 );
         });
+        var psUrl = buildSortUrl( target_column, 'asc', target_class );
+        history.pushState(null, elem.text()+':'+'昇順', psUrl);
     }
     else {
         $('th.sortbtn').attr('order', false);
@@ -1016,6 +1021,8 @@ function sortByColumn ( e ) {
         target.sort(function(a,b){
             return ( sort_field_fetch(a) > sort_field_fetch(b) ? 1 : -1 );
         });
+        var psUrl = buildSortUrl( target_column, 'asc', target_class );
+        history.pushState(null, elem.text()+':'+'昇順', psUrl);
     }
     $.each( target.reverse(), function(i, e){
         $(e).click(function(ee){
@@ -1023,4 +1030,52 @@ function sortByColumn ( e ) {
         });
         elem.parent('tr').after(e);
     });
+}
+
+function getParams () {
+    var rtn;
+    if ( location.search ) {
+        rtn = {};
+        $.each( location.search.substring(1).split(/&/), function(i, kv) {
+            var m = kv.split(/=/);
+            var key = m[0];
+            var val = m[1];
+            rtn[key] = val;
+        } );
+    }
+    return rtn;
+}
+
+function serializeParams ( params ) {
+    var kv = [];
+    $.each( params, function( key, val ){
+        kv.push( key + '=' + val );
+    });
+    return kv.join('&');
+}
+
+function buildSortUrl ( sortby, order, sort_stat ) {
+    var params = getParams() || {} ;
+    params.sortby = sortby;
+    params.order = order;
+    params.sort_stat = sort_stat;
+    return location.pathname + '?' + serializeParams( params );
+}
+
+function sortByUrl () {
+    var params = getParams();
+    if ( params ) {
+        if ( params.sortby ) {
+            params.order = params.order ? params.order : 'asc' ;
+            params.sort_stat = params.sort_stat ? params.sort_stat : 'host_status_in_service' ;
+            var dom_order = params.order == 'asc' ? 'desc' : 'asc' ;
+            var order_label = params.order == 'desc' ? '↓'  : '↑' ;
+            var order_title = params.order == 'desc' ? '降順' : '昇順' ;
+            var sortby = params.sortby.replace(/^host_/,"");
+            var elem = $('tr.sortbar[target='+params.sort_stat+'] > th.sortbtn[target='+sortby+']');
+            elem.attr('order', dom_order);
+            elem.click();
+            elem.html(elem.html()+'<span class="sortorder" title="'+order_title+'">'+order_label+'</span>');
+        }
+    }
 }
