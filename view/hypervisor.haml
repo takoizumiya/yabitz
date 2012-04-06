@@ -3,7 +3,7 @@
 %tr.host_outline.selectable.hypervisor{:id => "#{hypervisor.host.oid}", :title => h(hypervisor.host.display_name)}
   %td.host_status_in_service
     %div{:style => "padding-top: 3em;"}
-  %td.host_displayname
+  %td.host_displayname.resources
     &= hypervisor.host.display_name
     - if hypervisor.host.dnsnames_by_id.size > 1
       %img{:border => "0", :src => "/images/multi_records.png", :width => "16", :height => "16", :alt => "他", :style => "vertical-align: middle;"}
@@ -14,33 +14,25 @@
           %li= ips[0]
         - if ips.size > 1
           %li= ips[1]
-  %td.host_ipaddresses_multi
-    - if ips.size > 2
-      %img{:border => "0", :src => "/images/multi_records.png", :width => "16", :height => "16", :alt => "他", :style => "vertical-align: middle;"}
-    - else
-      %img{:src => "/images/1x1.gif"}
-  %td.td_padding
-    %img{:src => "/images/1x1.gif"}
-  %td.td_padding.resources
+  %td.td_padding.host_cpu.resources
     - cpu_unassigned = hypervisor.cpu_unassigned > 1 ? hypervisor.cpu_unassigned : 0
+    #{cpu_unassigned}cores
+  %td.td_padding.host_memory.resources
     - memory_unassigned = hypervisor.memory_unassigned > 1 ? hypervisor.memory_unassigned : 0
     - if memory_unassigned >= 1024
       - memory_unassigned = memory_unassigned / 1024
       - memory_unassigned = memory_unassigned.to_s + 'GB'
     - else
       - memory_unassigned = memory_unassigned.to_s + 'MB'
+    #{memory_unassigned}
+  %td.td_padding.host_disk.resources
     - disk_unassigned = hypervisor.disk_unassigned > 1 ? hypervisor.disk_unassigned : 0
     - if disk_unassigned >= 1024
       - disk_unassigned = disk_unassigned / 1024
       - disk_unassigned = disk_unassigned.to_s + 'TB'
     - else
       - disk_unassigned = disk_unassigned.to_s + 'GB'
-    %ul 
-      %li CPU #{cpu_unassigned}cores free
-      %li MEM #{memory_unassigned} free
-      %li HDD #{disk_unassigned} free
-  %td.td_padding
-    %img{:src => "/images/1x1.gif"}
+    #{disk_unassigned}
   %td.host_service
     &= hypervisor.host.service.to_s
   %td.td_padding_narrow

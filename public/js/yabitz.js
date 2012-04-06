@@ -95,6 +95,48 @@ $(function(){
     });
 
     ZeroClipboard.setMoviePath( '/zeroclipboard/ZeroClipboard10.swf' );
+
+    // sort hosts
+    appendSortbarAfter( $('tr.host.outline.detailsearch_information') );
+    ( function () {
+        var target_expr = 'tr.host_category_summary'
+        var target = $(target_expr);
+        $.each( target, function(i, e){
+            if ( i < target.size() - 1 ) {
+                appendSortbarAfter( $(e) );
+            }
+        });
+    } )();
+    ( function () {
+        var prev_elem;
+        $.each( $('table#hostlist > tbody > tr'), function(i, e){
+            var elem = $(e);
+            if ( prev_elem ) {
+                if ( elem.attr('class').match('host_outline') && prev_elem.attr('class') == 'sortbar' ) {
+                    prev_elem.attr( 'target', $(elem.children('td').get(0)).attr('class') );
+                }
+            }
+            prev_elem = elem;
+        } );
+    } )();
+    if ( $($('table#hostlist > tbody > tr').get(0)).attr('class').match('host_outline') ) {
+        var sortbar;
+        var top_tr = $($('table#hostlist > tbody > tr').get(0));
+        top_tr.before('<tr id="voidtarget"></tr>');
+        if ( top_tr.attr('class').match('hypervisor') ) {
+            sortbar = appendHyperVisorSortbarAfter( $('tr#voidtarget') );
+        }
+        else {
+            sortbar = appendSortbarAfter( $('tr#voidtarget') );
+        }
+        sortbar.attr('target', 'host_status_in_service');
+        
+        $('tr#voidtarget').remove();
+    }
+    $('th.sortbtn').click(function(){
+        sortByColumn( this );
+    });
+
 });
 
 $.fn.hoverClass = function(c) {
@@ -881,5 +923,104 @@ function searchFieldCheckInit ( elem ) {
     searchFieldCheck( elem );
     $(elem).change(function(){
         searchFieldCheck( elem );
+    });
+}
+
+function appendSortbarAfter ( elem ) {
+    var bar = $('<tr class="sortbar"></tr>');
+    bar.append('<th class="sortpad border_left"></th>');
+    bar.append('<th class="sortbtn" target="displayname">ホスト名</th>');
+    bar.append('<th class="sortpad"></th>');
+    bar.append('<th class="sortbtn" target="ipaddresses">IPアドレス</th>');
+    bar.append('<th class="sortpad"></th>');
+    bar.append('<th class="sortpad"></th>');
+    bar.append('<th class="sortbtn" target="service">サービス名</th>');
+    bar.append('<th class="sortpad"></th>');
+    bar.append('<th class="sortbtn" target="hwid">HWID</th>');
+    bar.append('<th class="sortpad"></th>');
+    bar.append('<th class="sortbtn" target="rackunit">Rackunit</th>');
+    bar.append('<th class="sortbtn" target="alert">監視</th>');
+    bar.append('<th class="sortpad"></th>');
+    bar.append('<th class="sortpad border_right"></th>');
+    bar.children('th.sortbtn').each(function(){
+        $(this).attr('title', $(this).text()+'でソート');
+    });
+    elem.after( bar );
+    return bar;
+}
+
+function appendHyperVisorSortbarAfter ( elem ) {
+    var bar = $('<tr class="sortbar"></tr>');
+    bar.append('<th class="sortpad border_left"></th>');
+    bar.append('<th class="sortbtn" target="displayname">ホスト名</th>');
+    bar.append('<th class="sortbtn" target="cpu">CPU Free</th>');
+    bar.append('<th class="sortbtn" target="memory">MEM Free</th>');
+    bar.append('<th class="sortbtn" target="disk">HDD Free</th>');
+    bar.append('<th class="sortbtn" target="service">サービス名</th>');
+    bar.append('<th class="sortpad"></th>');
+    bar.append('<th class="sortbtn" target="hwid">HWID</th>');
+    bar.append('<th class="sortpad"></th>');
+    bar.append('<th class="sortbtn" target="rackunit">Rackunit</th>');
+    bar.append('<th class="sortbtn" target="alert">監視</th>');
+    bar.append('<th class="sortpad"></th>');
+    bar.append('<th class="sortpad border_right"></th>');
+    bar.children('th.sortbtn').each(function(){
+        $(this).attr('title', $(this).text()+'でソート');
+    });
+    elem.after( bar );
+    return bar;
+}
+
+function sortByColumn ( e ) {
+    var elem = $(e);
+    var numeric_sort_pattern = /^host_(cpu|memory|disk)$/;
+    var target_class = elem.parent('tr').attr('target');
+    var target_column = 'host_' + elem.attr('target');
+    var target = [];
+    var sort_field_fetch = function ( v ) {
+        return $(v).children('td.'+target_column).text().replace(/^\s+/,"");
+    };
+    if ( target_column.match( numeric_sort_pattern ) ) {
+        sort_field_fetch = function ( v ) {
+            return parseInt( $(v).children('td.'+target_column).text() );
+        };
+    }
+
+    elem.parent('tr').parent('tbody').children('tr').each( function(){
+        if ( $(this).attr('class').match('host_outline') && $($(this).children('td').get(0)).attr('class') == target_class ) {
+            target.push( $(this) );
+            $(this).remove();
+        }
+    } );
+    if( elem.attr('order') == 'asc' ) {
+        elem.attr('order','desc');
+        $('span.sortorder').text('↓');
+        $('span.sortorder').attr('title', '降順');
+        target.sort(function(a,b){
+            return ( sort_field_fetch(b) > sort_field_fetch(a) ? 1 : -1 );
+        });
+    }
+    else if( elem.attr('order') == 'desc' ) {
+        elem.attr('order','asc');
+        $('span.sortorder').text('↑');
+        $('span.sortorder').attr('title', '昇順');
+        target.sort(function(a,b){
+            return ( sort_field_fetch(a) > sort_field_fetch(b) ? 1 : -1 );
+        });
+    }
+    else {
+        $('th.sortbtn').attr('order', false);
+        $('span.sortorder').remove();
+        elem.attr('order','asc');
+        elem.html(elem.html()+'<span class="sortorder" title="昇順">↑</span>');
+        target.sort(function(a,b){
+            return ( sort_field_fetch(a) > sort_field_fetch(b) ? 1 : -1 );
+        });
+    }
+    $.each( target.reverse(), function(i, e){
+        $(e).click(function(ee){
+            toggle_item_selection(ee, 'host');
+        });
+        elem.parent('tr').after(e);
     });
 }
