@@ -165,7 +165,11 @@ module Yabitz::Checker
         end
       else
         if brick.hwid and hwid_hosts[brick.hwid] and hwid_hosts[brick.hwid].length > 0
-          bricks_status_hwid_host_mismatches.push(brick)
+          if hwid_hosts[brick.hwid].inject(true){|r,h| r and h.status == Yabitz::Model::Host::STATUS_REMOVED}
+            # brick with removed hosts are no problem
+          else
+            bricks_status_hwid_host_mismatches.push(brick)
+          end
         end
       end
 
