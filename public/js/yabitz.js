@@ -98,6 +98,7 @@ $(function(){
 
     // sort hosts
     appendSortbarAfter( $('tr.host.outline.detailsearch_information') );
+    appendSortbarAfter( $('tr.host.outline.smartsearch_condition'), 'all' );
     ( function () {
         var target_expr = 'tr.host_category_summary'
         var target = $(target_expr);
@@ -113,7 +114,9 @@ $(function(){
             var elem = $(e);
             if ( prev_elem ) {
                 if ( elem.attr('class').match('host_outline') && prev_elem.attr('class') == 'sortbar' ) {
-                    prev_elem.attr( 'target', $(elem.children('td').get(0)).attr('class') );
+                    if ( typeof( prev_elem.attr( 'target' ) ) == 'undefined' ) {
+                        prev_elem.attr( 'target', $(elem.children('td').get(0)).attr('class') );
+                    }
                 }
             }
             prev_elem = elem;
@@ -927,7 +930,7 @@ function searchFieldCheckInit ( elem ) {
     });
 }
 
-function appendSortbarAfter ( elem ) {
+function appendSortbarAfter ( elem, target_class ) {
     var bar = $('<tr class="sortbar"></tr>');
     bar.append('<th class="sortpad border_left"></th>');
     bar.append('<th class="sortbtn" target="displayname">ホスト名</th>');
@@ -946,11 +949,14 @@ function appendSortbarAfter ( elem ) {
     bar.children('th.sortbtn').each(function(){
         $(this).attr('title', $(this).text()+'でソート');
     });
+    if ( target_class ) {
+        bar.attr( 'target', target_class ); 
+    }
     elem.after( bar );
     return bar;
 }
 
-function appendHyperVisorSortbarAfter ( elem ) {
+function appendHyperVisorSortbarAfter ( elem, target_class ) {
     var bar = $('<tr class="sortbar"></tr>');
     bar.append('<th class="sortpad border_left"></th>');
     bar.append('<th class="sortbtn" target="displayname">ホスト名</th>');
@@ -968,6 +974,9 @@ function appendHyperVisorSortbarAfter ( elem ) {
     bar.children('th.sortbtn').each(function(){
         $(this).attr('title', $(this).text()+'でソート');
     });
+    if ( target_class ) {
+        bar.attr( 'target', target_class ); 
+    }
     elem.after( bar );
     return bar;
 }
@@ -988,9 +997,11 @@ function sortByColumn ( e ) {
     }
 
     elem.parent('tr').parent('tbody').children('tr').each( function(){
-        if ( $(this).attr('class').match('host_outline') && $($(this).children('td').get(0)).attr('class') == target_class ) {
-            target.push( $(this) );
-            $(this).remove();
+        if ( $(this).attr('class').match('host_outline') ) {
+            if ( $($(this).children('td').get(0)).attr('class') == target_class || target_class == 'all' ) {
+                target.push( $(this) );
+                $(this).remove();
+            }
         }
     } );
     if( elem.attr('order') == 'asc' ) {
