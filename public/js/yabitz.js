@@ -122,24 +122,26 @@ $(function(){
             prev_elem = elem;
         } );
     } )();
-    if ( $($('table#hostlist > tbody > tr').get(0)).attr('class').match('host_outline') ) {
-        var sortbar;
-        var top_tr = $($('table#hostlist > tbody > tr').get(0));
-        top_tr.before('<tr id="voidtarget"></tr>');
-        if ( top_tr.attr('class').match('hypervisor') ) {
-            sortbar = appendHyperVisorSortbarAfter( $('tr#voidtarget') );
+    if ( $('table#hostlist > tbody > tr').size() > 0 ) {
+        if ( $($('table#hostlist > tbody > tr').get(0)).attr('class').match('host_outline') ) {
+            var sortbar;
+            var top_tr = $($('table#hostlist > tbody > tr').get(0));
+            top_tr.before('<tr id="voidtarget"></tr>');
+            if ( top_tr.attr('class').match('hypervisor') ) {
+                sortbar = appendHyperVisorSortbarAfter( $('tr#voidtarget') );
+            }
+            else {
+                sortbar = appendSortbarAfter( $('tr#voidtarget') );
+            }
+            sortbar.attr( 'target', $(top_tr.children('td').get(0)).attr('class') );
+            
+            $('tr#voidtarget').remove();
         }
-        else {
-            sortbar = appendSortbarAfter( $('tr#voidtarget') );
-        }
-        sortbar.attr( 'target', $(top_tr.children('td').get(0)).attr('class') );
-        
-        $('tr#voidtarget').remove();
+        $('th.sortbtn').click(function(){
+            sortByColumn( this );
+        });
+        sortByUrl();
     }
-    $('th.sortbtn').click(function(){
-        sortByColumn( this );
-    });
-    sortByUrl();
 
 });
 
@@ -1090,3 +1092,4 @@ function sortByUrl () {
         }
     }
 }
+
