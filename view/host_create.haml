@@ -33,58 +33,38 @@
             %div.cloneable
             %div.hostadd_item.cloneable
               %input.cloneable_number{:type => "hidden", :name => "adding0", :value => 0}
-              %table.inputitems
+              %table.inputitems.newhost
                 %tr
-                  %td.namefield DNSName
-                  %td :
-                  %td.inputfield
-                    %input.simple.blank_onclone{:type => "text", :name => "dnsnames0", :size => 17} 
-                  %td.spacer
-                    %div
-                  %td.namefield Local IP
-                  %td :
-                  %td.inputfield
-                    %input.simple.blank_onclone{:type => "text", :name => "localips0", :size => 17}
-                %tr
-                  %td
-                    %div{:style => "padding-top: 5px;"}
-                %tr
-                  %td.namefield ラック位置
-                  %td :
-                  %td.inputfield
-                    %input.simple.optional{:type => "text", :name => "rackunit0", :size => 17}
-                  %td.spacer
-                    %div
-                  %td.namefield HWID
-                  %td :
-                  %td.inputfield
-                    %input.simple.optional{:type => "text", :name => "hwid0", :size => 17}
-                %tr
-                  %td
-                    %div{:style => "padding-top: 5px;"}
-                %tr
-                  %td.namefield タイプ
-                  %td :
+                  %th.namefield タイプ
                   %td.inputfield
                     %select.host_type{:name => "type0" }
                       - Yabitz::HostType.names.each do |type|
                         %option{:value => h(type)}&= type
-                  %td.spacer
-                    %div
-                  %td.namefield ハイパーバイザ
-                  %td :
+                  %th.namefield ハイパーバイザ
                   %td.inputfield
                     %select.host_hypervisor{:name => "hypervisor0", :onchange => "select_hypervisor(this);" }
                       %option{:value => ""} （選択なし）
                       - Yabitz::Suggest.all_hosts.each do |hv|
-                        - hv_title = "CPU:#{hv.cpu_unassigned}cores free | MEM:#{hv.memory_unassigned}MB free | HDD:#{hv.disk_unassigned}GB free"
-                        %option{:value => hv.host.oid, :title => hv_title, :rackunit => hv.host.rackunit, :hwid => hv.host.hwid, :hwinfo => hv.host.hwinfo, :os => hv.host.os, :cpu => hv.host.cpu, :memory => hv.host.memory, :disk => hv.host.disk } #{hv.host.display_name.to_s()} 
+                        %option{:value => hv.host.oid, :rackunit => hv.host.rackunit, :hwid => hv.host.hwid, :hwinfo => hv.host.hwinfo, :os => hv.host.os, :cpu => hv.host.cpu, :memory => hv.host.memory, :disk => hv.host.disk }
+                          #{hv.host.display_name.to_s()} | #{hv.host.rackunit}
+                          - if hv.host.globalips.size() > 0
+                            #{hv.host.globalips}
                 %tr
-                  %td
-                    %div{:style => "padding-top: 5px;"}
+                  %th.namefield ラック位置
+                  %td.inputfield
+                    %input.simple.optional{:type => "text", :name => "rackunit0", :size => 17}
+                  %th.namefield HWID
+                  %td.inputfield
+                    %input.simple.optional{:type => "text", :name => "hwid0", :size => 17}
                 %tr
-                  %td.namefield HW
-                  %td :
+                  %th.namefield DNSName
+                  %td.inputfield
+                    %input.simple.blank_onclone{:type => "text", :name => "dnsnames0", :size => 17} 
+                  %th.namefield Local IP
+                  %td.inputfield
+                    %input.simple.blank_onclone{:type => "text", :name => "localips0", :size => 17}
+                %tr
+                  %th.namefield HW
                   %td.inputfield
                     %select{:name => "hwinfo0"}
                       - Yabitz::Model::HwInformation.all.sort.each do |hwinfo|
@@ -92,10 +72,7 @@
                           %option{:value => hwinfo.oid, :selected => true}&= hwinfo.to_s
                         - else
                           %option{:value => hwinfo.oid}&= hwinfo.to_s
-                  %td.spacer
-                    %div
-                  %td.namefield OS
-                  %td :
+                  %th.namefield OS
                   %td.inputfield
                     %select{:name => "os0"}
                       - Yabitz::Model::OSInformation.all.sort.each do |osinfo|
@@ -104,58 +81,33 @@
                         - else
                           %option.optional{:value => osinfo.oid}&= osinfo.name
                 %tr
-                  %td
-                    %div{:style => "padding-top: 5px;"}
-                %tr
-                  %td.namefield メモリ
-                  %td :
+                  %th.namefield メモリ
                   %td.inputfield
                     %input.simple{:type => "text", :name => "memory0", :size => 17}
-                  %td.spacer
-                    %div
-                  %td.namefield ディスク
-                  %td :
+                  %th.namefield ディスク
                   %td.inputfield
                     %input.simple{:type => "text", :name => "disk0", :size => 17}
                 %tr
-                  %td
-                    %div{:style => "padding-top: 5px;"}
-                %tr
-                  %td.namefield CPU
-                  %td :
+                  %th.namefield CPU
                   %td.inputfield
                     %input.simple.optional{:type => "text", :name => "cpu0", :size => 17}
-                  %td{:colspan => 4}
+                  %td{:colspan => 2}
                     %div.listclone{:style => "text-align: right;"}
                       %img.button{:src => "/images/adding.png"}
                 %tr
-                  %td
-                    %div{:style => "padding-top: 5px;"}
-                %tr
-                  %td.namefield Global IP
-                  %td :
+                  %th.namefield Global IP
                   %td.inputfield
                     %input.simple.optional{:type => "text", :name => "globalips0", :size => 17}
-                  %td.spacer
-                    %div
-                  %td.namefield Virtual IP
-                  %td :
+                  %th.namefield Virtual IP
                   %td.inputfield
                     %input.simple.optional{:type => "text", :name => "virtualips0", :size => 17}
                 %tr
-                  %td
-                    %div{:style => "padding-top: 5px;"}
-                %tr
-                  %td.namefield タグ
-                  %td :
+                  %th.namefield タグ
                   %td.inputfield
                     %input.simple.optional{:type => "text", :name => "tagchain0", :size => 17}
-                  %td{:colspan => 4}
+                  %td{:colspan => 2}
                     %div.listclone{:style => "text-align: right;"}
                       %img.button{:src => "/images/adding.png"}
-                %tr
-                  %td
-                    %div{:style => "padding-top: 5px;"}
             %div{:style => "padding-right: 3em; text-align: right;"}
               %button{:onclick => "window.location.reload(); return false;"}
                 %div{:style => "padding: 0.5em;"} キャンセル

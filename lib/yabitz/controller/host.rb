@@ -53,6 +53,8 @@ class Yabitz::Application < Sinatra::Base
                        nil
                      end
     @page_title = 'ホスト追加'
+    @hide_detailbox = true
+    @hide_detailview = true
     haml :host_create, :locals => {:cond => @page_title, :target => target_service}
   end
 
