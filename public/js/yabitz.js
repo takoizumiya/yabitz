@@ -126,7 +126,11 @@ $(function(){
         } );
     } )();
     if ( $('table#hostlist > tbody > tr').size() > 0 ) {
-        if ( $($('table#hostlist > tbody > tr').get(0)).attr('class').match('host_outline') ) {
+        var elem = $($('table#hostlist > tbody > tr').get(0));
+        if ( elem.attr('class').match('host_outline') ) {
+            if ( elem.attr('class').match('unupdatable') ) {
+                next;
+            }
             var sortbar;
             var top_tr = $($('table#hostlist > tbody > tr').get(0));
             top_tr.before('<tr id="voidtarget"></tr>');
