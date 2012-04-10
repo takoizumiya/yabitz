@@ -113,7 +113,10 @@ $(function(){
         $.each( $('table#hostlist > tbody > tr'), function(i, e){
             var elem = $(e);
             if ( prev_elem ) {
-                if ( elem.attr('class').match('host_outline') && prev_elem.attr('class') == 'sortbar' ) {
+                if ( elem.attr('class').match('unupdatable') ) {
+                    next;
+                }
+                else if ( elem.attr('class').match('host_outline') && prev_elem.attr('class') == 'sortbar' ) {
                     if ( typeof( prev_elem.attr( 'target' ) ) == 'undefined' ) {
                         prev_elem.attr( 'target', $(elem.children('td').get(0)).attr('class') );
                     }
