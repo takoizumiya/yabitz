@@ -1093,3 +1093,33 @@ function sortByUrl () {
     }
 }
 
+function select_hypervisor ( e ) {
+    var elem = $(e);
+    var host_box = elem.closest('div.hostadd_item.cloneable');
+    var host_num = host_box.find('input.cloneable_number').val();
+    var f = function ( field_name ) { 
+        var name = field_name+host_num;
+        return host_box.find('input[name='+ name +'],select[name='+ name +']');
+    };
+    var hv = function ( attr_name ) {
+        return elem.children(':selected').attr( attr_name );
+    }
+    if ( elem.val().length > 0 ) {
+        f('type').val('Xen(DomU)');
+        f('hwinfo').children('option').each(function( i, opt ){
+            if ( $(opt).text() == 'xen' ) {
+                f( 'hwinfo' ).val( $(opt).attr('value') );
+            }
+        });
+        $.each( ['rackunit','hwid','cpu','memory','disk'], function( i, k ) {
+            f( k ).val( hv( k ) );
+        });
+        $.each( ['os'], function( i, k ) {
+            f( k ).children('option').each(function( j, opt ){
+                if ( $(opt).text() == hv( k ) ) {
+                    f( k ).val( $(opt).attr('value') );
+                }
+            });
+        });
+    }
+}

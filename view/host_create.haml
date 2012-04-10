@@ -66,9 +66,19 @@
                   %td.namefield タイプ
                   %td :
                   %td.inputfield
-                    %select{:name => "type0"}
+                    %select.host_type{:name => "type0" }
                       - Yabitz::HostType.names.each do |type|
                         %option{:value => h(type)}&= type
+                  %td.spacer
+                    %div
+                  %td.namefield ハイパーバイザ
+                  %td :
+                  %td.inputfield
+                    %select.host_hypervisor{:name => "hypervisor0", :onchange => "select_hypervisor(this);" }
+                      %option{:value => ""} （選択なし）
+                      - Yabitz::Suggest.all_hosts.each do |hv|
+                        - hv_title = "CPU:#{hv.cpu_unassigned}cores free | MEM:#{hv.memory_unassigned}MB free | HDD:#{hv.disk_unassigned}GB free"
+                        %option{:value => hv.host.oid, :title => hv_title, :rackunit => hv.host.rackunit, :hwid => hv.host.hwid, :hwinfo => hv.host.hwinfo, :os => hv.host.os, :cpu => hv.host.cpu, :memory => hv.host.memory, :disk => hv.host.disk } #{hv.host.display_name.to_s()} 
                 %tr
                   %td
                     %div{:style => "padding-top: 5px;"}

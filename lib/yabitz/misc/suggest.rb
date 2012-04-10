@@ -84,6 +84,15 @@ module Yabitz
         b.cpu_unassigned <=> a.cpu_unassigned
       }
     end
+    def self.all_hosts ()
+      return Yabitz::Model::Service.query(:hypervisors => true).map{ |service|
+        self.hosts( service )
+      }.flatten.sort{ | a, b |
+        b.memory_unassigned <=> a.memory_unassigned
+      }.sort{ | a, b |
+        b.cpu_unassigned <=> a.cpu_unassigned
+      }
+    end
   end
 end
 
