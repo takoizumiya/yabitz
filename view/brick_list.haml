@@ -4,7 +4,7 @@
   - next if categorized[state][:list].size < 1
   - set = categorized[state]
   = partial :brick, :collection => set[:list]
-  %tr.host_category_summary
+  %tr.brick_category_summary
     - case status
     - when Yabitz::Model::Brick::STATUS_STOCK
       %td.brick_status_stock
@@ -40,7 +40,7 @@
     %td.td_line_term
       %img{:src => "/images/1x1.gif"}
 - set = categorized['total']
-%tr.host_category_summary_total
+%tr.brick_category_summary_total
   %td.brick_status_in_use
     %div.header_status
   %td.brick_hwid
