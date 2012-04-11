@@ -100,7 +100,7 @@ $(function(){
     appendSortbarAfter( $('tr.host.outline.detailsearch_information') );
     appendSortbarAfter( $('tr.host.outline.smartsearch_condition'), 'all' );
     ( function () {
-        var target_expr = 'tr.host_category_summary'
+        var target_expr = 'tr.host_category_summary';
         var target = $(target_expr);
         $.each( target, function(i, e){
             if ( i < target.size() - 1 ) {
