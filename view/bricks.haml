@@ -17,4 +17,4 @@
 %div#toolbox_spacer_bottom
 %div#maincontents
   %table#bricklist
-    = partial :brick, :collection => @bricks
+    = haml :brick_list, :locals => {:brick_list => @bricks}

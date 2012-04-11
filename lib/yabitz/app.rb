@@ -40,7 +40,7 @@ class Yabitz::Application < Sinatra::Base
   helpers Sinatra::AuthenticateHelper
   helpers Sinatra::PartialHelper
   helpers Sinatra::HostCategorize
-  helpers Sinatra::HyperVisorCategorize
+  helpers Sinatra::BrickCategorize
   helpers Sinatra::LinkGenerator
   helpers Sinatra::EscapeHelper
   helpers Sinatra::ValueComparator
