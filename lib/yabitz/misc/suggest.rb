@@ -73,25 +73,40 @@ module Yabitz
   end
 
   module Suggest
-    def self.hosts ( srv )
-      return Yabitz::Model::Host.query(:service => srv).select{|h| 
-        h.status == Yabitz::Model::Host::STATUS_IN_SERVICE
-      }.flatten.map{ | host |
-        Yabitz::HyperVisor.new( host )
-      }.sort{ | a, b |
+    def self.sort ( hosts )
+      return hosts.sort{ | a, b |
         b.memory_unassigned <=> a.memory_unassigned
       }.sort{ | a, b |
         b.cpu_unassigned <=> a.cpu_unassigned
       }
     end
-    def self.all_hosts ()
-      return Yabitz::Model::Service.query(:hypervisors => true).map{ |service|
-        self.hosts( service )
-      }.flatten.sort{ | a, b |
-        b.memory_unassigned <=> a.memory_unassigned
-      }.sort{ | a, b |
-        b.cpu_unassigned <=> a.cpu_unassigned
+    def self.hosts ( srv )
+      hosts = Yabitz::Model::Host.query(:service => srv).select{|h| 
+        h.status == Yabitz::Model::Host::STATUS_IN_SERVICE
+      }.flatten.map{ | host |
+        Yabitz::HyperVisor.new( host )
       }
+      return self.sort( hosts )
+    end
+    def self.all_hosts ()
+      hosts = Yabitz::Model::Service.query(:hypervisors => true).map{ |service|
+        self.hosts( service )
+      }.flatten
+      return self.sort( hosts )
+    end
+    def self.related_hosts ( srv )
+       hosts = Yabitz::Model::Content.query(:services => srv).map{ |content|
+           content.services
+       }.flatten.select{ |service|
+           service.hypervisors == true
+       }.flatten.map{ |service|
+           Yabitz::Model::Host.query(:service => service.oid )
+       }.flatten.select{|host|
+           host.status = Yabitz::Model::Host::STATUS_IN_SERVICE
+       }.map{|host|
+           Yabitz::HyperVisor.new( host )
+       }
+       return self.sort( hosts )
     end
   end
 end

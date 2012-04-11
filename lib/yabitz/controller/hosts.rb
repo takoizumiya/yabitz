@@ -99,6 +99,27 @@ class Yabitz::Application < Sinatra::Base
     end
   end
 
+  get %r!/ybz/hosts/suggest/service/(\d+)(\.json|\.csv)?! do |oid, ctype|
+    authorized?
+
+    @srv = Yabitz::Model::Service.get(oid.to_i)
+    pass unless @srv # object not found -> HTTP 404
+
+    @hosts = Yabitz::Suggest.related_hosts( @srv )
+
+    case ctype
+    when '.json'
+      response['Content-Type'] = 'application/json'
+      @hosts.map{|hv|hv.to_tree}.to_json
+    when '.csv'
+      response['Content-Type'] = 'text/csv'
+      Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hosts.map{|hv|hv.host} )
+    else
+      @page_title = "仮想化基盤ホスト一覧"
+      haml :hypervisors, :locals => { :cond => "仮想化基盤ホスト サービス:#{@srv.name} 関連" }
+    end
+  end
+
   get %r!/ybz/hosts/suggest(\.html|\.json|\.csv)?! do |ctype|
     authorized?
     @hosts = Yabitz::Suggest.all_hosts()

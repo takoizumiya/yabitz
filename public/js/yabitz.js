@@ -181,6 +181,16 @@ $(function(){
         sortByUrl();
     }
 
+    // build Dom0-suggestion select-box
+    if ( $('select.host_hypervisor').size() > 0 ) {
+        $('select[name=service]').change(function(){
+            var service_oid = $(this).val();
+            $('select.host_hypervisor').each(function(i, e){
+                build_dom0_suggestion_select_box( service_oid, e );
+            });
+        });
+    }
+
 });
 
 $.fn.hoverClass = function(c) {
@@ -1162,4 +1172,50 @@ function select_hypervisor ( e ) {
             });
         });
     }
+}
+
+function build_dom0_suggestion_select_box ( oid, e ) {
+    var elem = $(e);
+    elem.after('<span class="loading">Loading...</span>');
+    elem.hide();
+    elem.html('<option value="">(選択なし)</option>');
+    $.get('/ybz/hosts/suggest.json', function(hvlist){
+        $.each( hvlist, function(i, hv){
+            var host = hv.host;
+            var display_item = [ host.display, host.content.rackunit ];
+            if ( host.content.globalips.length > 0 ) {
+                display_item.push('['+ host.content.globalips.join(',') + ']');
+            }
+            var display = display_item.join(' | ');
+            if ( elem.children('option.hypervisor_item').length < 10 ) {
+                var opt = $('<option></option>');
+                opt.attr({ 
+                    'class': 'hypervisor_item', 
+                    'value': host.oid,
+                    'cpu': host.content.cpu,
+                    'disk': host.content.disk,
+                    'hwid': host.content.hwid,
+                    'hwinfo': host.content.hwinfo,
+                    'memory': host.content.memory,
+                    'os': host.content.os,
+                    'rackunit': host.content.rackunit
+                });
+                opt.text( display );
+                elem.append( opt );
+            }
+        });
+        elem.append('<option onclick="show_dom0_direct_input(this);">その他のハイパーバイザ</option>');
+        if ( ! elem.attr('disabled') ) {
+            elem.show();
+        }
+        $('span.loading').remove();
+    })
+}
+
+function show_dom0_direct_input ( e ) {
+    var elem = $(e);
+    var select = elem.closest('select');
+    var input = $('<input name="hypervisor" />');
+    select.attr('disabled',true);
+    select.hide();
 }
