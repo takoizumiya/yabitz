@@ -24,7 +24,7 @@ $(function(){
 
     $('button#selected_bricks').click(function(e){show_selected_bricks(e);});
     $('button#bricks_history').click(function(e){show_bricks_history(e);});
-
+    $('select#brick_selection_list').change(function(e){show_more_selected_bricks(e);});
     $('div#copypasterlinks').find('.copypaster').click(function(e){
         copypastable_all_hosts($(e.target), window.location.href);
     });
@@ -122,7 +122,8 @@ $(function(){
             prev_elem = elem;
         } );
     } )();
-    if ( $($('table#hostlist > tbody > tr').get(0)).attr('class').match('host_outline') ) {
+    var hostlist = $('table#hostlist > tbody > tr').get(0);
+    if ( hostlist && $(hostlist).attr('class').match('host_outline') ) {
         var sortbar;
         var top_tr = $($('table#hostlist > tbody > tr').get(0));
         top_tr.before('<tr id="voidtarget"></tr>');
@@ -301,6 +302,18 @@ function show_selected_bricks(event){
         return false;
     };
     window.location.href = '/ybz/brick/' + selected.get().join('-');
+};
+
+function show_more_selected_bricks(event){
+    var product = $(event.target).val();
+    var uri;
+    if (product === '') {
+        uri = window.location.origin + window.location.pathname;
+        window.location.href = uri;
+        return;
+    }
+    uri = window.location.origin + window.location.pathname + '?p=' + product;
+    window.location.href = uri;
 };
 
 function show_hosts_history(event){

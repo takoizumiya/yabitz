@@ -66,7 +66,14 @@ class Yabitz::Application < Sinatra::Base
 
   get %r!/ybz/bricks/list/all(\.json|\.csv)?! do |ctype|
     authorized?
-    @bricks = Yabitz::Model::Brick.all
+    if request.params['p'].nil?
+      @bricks = Yabitz::Model::Brick.all
+      @cond = "全て"
+    else
+      product = request.params['p']
+      @bricks = Yabitz::Model::Brick.query(:productname => product)
+      @cond = product
+    end
     case ctype
     when '.json'
       response['Content-Type'] = 'application/json'
@@ -76,8 +83,8 @@ class Yabitz::Application < Sinatra::Base
       Yabitz::Model::Brick.build_raw_csv(Yabitz::Model::Brick::CSVFIELDS, @bricks)
     else
       @bricks.sort!
-      @page_title = "機器一覧 (全て)"
-      haml :bricks, :locals => {:cond => '全て'}
+      @page_title = "機器一覧 (#{@cond})"
+      haml :bricks, :locals => {:cond => @cond}
     end
   end
 
@@ -117,7 +124,16 @@ class Yabitz::Application < Sinatra::Base
                    when 'repair' then Yabitz::Model::Brick::STATUS_REPAIR
                    when 'broken' then Yabitz::Model::Brick::STATUS_BROKEN
                    end
-    @bricks = Yabitz::Model::Brick.query(:status => targetstatus)
+    statustitle = Yabitz::Model::Brick.status_title(targetstatus)
+    product = request.params['p']
+    if product.nil?
+      @bricks = Yabitz::Model::Brick.query(:status => targetstatus)
+      @cond = statustitle
+    else
+      @bricks = Yabitz::Model::Brick.query(:status => targetstatus, :productname => product)
+      @cond = "#{statustitle} / #{product}"
+    end
+    product_list = @bricks.map(&:productname).uniq.compact
     case ctype
     when '.json'
       response['Content-Type'] = 'application/json'
@@ -127,9 +143,8 @@ class Yabitz::Application < Sinatra::Base
       Yabitz::Model::Brick.build_raw_csv(Yabitz::Model::Brick::CSVFIELDS, @bricks)
     else
       @bricks.sort!
-      statustitle = Yabitz::Model::Brick.status_title(targetstatus)
-      @page_title = "機器一覧 (#{statustitle})"
-      haml :bricks, :locals => {:cond => statustitle}
+      @page_title = "機器一覧 (#{@cond})"
+      haml :bricks, :locals => {:cond => @cond, :products => product_list, :selected => product}
     end
   end
 
