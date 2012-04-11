@@ -24,7 +24,7 @@ $(function(){
 
     $('button#selected_bricks').click(function(e){show_selected_bricks(e);});
     $('button#bricks_history').click(function(e){show_bricks_history(e);});
-
+    $('select#brick_selection_list').change(function(e){show_more_selected_bricks(e);});
     $('div#copypasterlinks').find('.copypaster').click(function(e){
         copypastable_all_hosts($(e.target), window.location.href);
     });
@@ -131,7 +131,7 @@ $(function(){
     appendSortbarAfter( $('tr.host.outline.detailsearch_information') );
     appendSortbarAfter( $('tr.host.outline.smartsearch_condition'), 'all' );
     ( function () {
-        var target_expr = 'tr.host_category_summary'
+        var target_expr = 'tr.host_category_summary';
         var target = $(target_expr);
         $.each( target, function(i, e){
             if ( i < target.size() - 1 ) {
@@ -156,24 +156,16 @@ $(function(){
             prev_elem = elem;
         } );
     } )();
-    if ( $('table#hostlist > tbody > tr').size() > 0 ) {
-        var elem = $($('table#hostlist > tbody > tr').get(0));
-        if ( elem.attr('class').match('host_outline') ) {
-            if ( elem.attr('class').match('unupdatable') ) {
-                next;
-            }
-            var sortbar;
-            var top_tr = $($('table#hostlist > tbody > tr').get(0));
-            top_tr.before('<tr id="voidtarget"></tr>');
-            if ( top_tr.attr('class').match('hypervisor') ) {
-                sortbar = appendHyperVisorSortbarAfter( $('tr#voidtarget') );
-            }
-            else {
-                sortbar = appendSortbarAfter( $('tr#voidtarget') );
-            }
-            sortbar.attr( 'target', $(top_tr.children('td').get(0)).attr('class') );
-            
-            $('tr#voidtarget').remove();
+    var hostlist = $('table#hostlist > tbody > tr').get(0);
+    if ( hostlist && $(hostlist).attr('class').match('host_outline') ) {
+        var sortbar;
+        var top_tr = $($('table#hostlist > tbody > tr').get(0));
+        top_tr.before('<tr id="voidtarget"></tr>');
+        if ( top_tr.attr('class').match('hypervisor') ) {
+            sortbar = appendHyperVisorSortbarAfter( $('tr#voidtarget') );
+        }
+        else {
+            sortbar = appendSortbarAfter( $('tr#voidtarget') );
         }
         $('th.sortbtn').click(function(){
             sortByColumn( this );
@@ -351,6 +343,18 @@ function show_selected_bricks(event){
         return false;
     };
     window.location.href = '/ybz/brick/' + selected.get().join('-');
+};
+
+function show_more_selected_bricks(event){
+    var product = $(event.target).val();
+    var uri;
+    if (product === '') {
+        uri = window.location.origin + window.location.pathname;
+        window.location.href = uri;
+        return;
+    }
+    uri = window.location.origin + window.location.pathname + '?p=' + product;
+    window.location.href = uri;
 };
 
 function show_hosts_history(event){

@@ -12,9 +12,16 @@
     %button#select_off_all 選択をクリア
     %button#selected_bricks 選択対象のみ表示
     %button#bricks_history 変更履歴
+  %div
+    機器名で絞り込み: 
+    %select#brick_selection_list
+      %option{:selected => selected.nil?, :value => ''} すべて
+      - products.each do |product|
+        %option{:selected => (product == selected)}
+          &= product
   - if @isadmin
     = haml :bricks_operations
 %div#toolbox_spacer_bottom
 %div#maincontents
   %table#bricklist
-    = partial :brick, :collection => @bricks
+    = haml :brick_list, :locals => {:brick_list => @bricks}
