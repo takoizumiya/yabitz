@@ -95,6 +95,52 @@ $(function(){
     });
 
     ZeroClipboard.setMoviePath( '/zeroclipboard/ZeroClipboard10.swf' );
+
+    // sort hosts
+    appendSortbarAfter( $('tr.host.outline.detailsearch_information') );
+    appendSortbarAfter( $('tr.host.outline.smartsearch_condition'), 'all' );
+    ( function () {
+        var target_expr = 'tr.host_category_summary'
+        var target = $(target_expr);
+        $.each( target, function(i, e){
+            if ( i < target.size() - 1 ) {
+                appendSortbarAfter( $(e) );
+            }
+        });
+    } )();
+    ( function () {
+        var prev_elem;
+        $.each( $('table#hostlist > tbody > tr'), function(i, e){
+            var elem = $(e);
+            if ( prev_elem ) {
+                if ( elem.attr('class').match('host_outline') && prev_elem.attr('class') == 'sortbar' ) {
+                    if ( typeof( prev_elem.attr( 'target' ) ) == 'undefined' ) {
+                        prev_elem.attr( 'target', $(elem.children('td').get(0)).attr('class') );
+                    }
+                }
+            }
+            prev_elem = elem;
+        } );
+    } )();
+    if ( $($('table#hostlist > tbody > tr').get(0)).attr('class').match('host_outline') ) {
+        var sortbar;
+        var top_tr = $($('table#hostlist > tbody > tr').get(0));
+        top_tr.before('<tr id="voidtarget"></tr>');
+        if ( top_tr.attr('class').match('hypervisor') ) {
+            sortbar = appendHyperVisorSortbarAfter( $('tr#voidtarget') );
+        }
+        else {
+            sortbar = appendSortbarAfter( $('tr#voidtarget') );
+        }
+        sortbar.attr( 'target', $(top_tr.children('td').get(0)).attr('class') );
+        
+        $('tr#voidtarget').remove();
+    }
+    $('th.sortbtn').click(function(){
+        sortByColumn( this );
+    });
+    sortByUrl();
+
 });
 
 $.fn.hoverClass = function(c) {
@@ -882,4 +928,165 @@ function searchFieldCheckInit ( elem ) {
     $(elem).change(function(){
         searchFieldCheck( elem );
     });
+}
+
+function appendSortbarAfter ( elem, target_class ) {
+    var bar = $('<tr class="sortbar"></tr>');
+    bar.append('<th class="sortpad border_left">&nbsp;</th>');
+    bar.append('<th class="sortbtn" target="displayname">ホスト名</th>');
+    bar.append('<th class="sortpad">&nbsp;</th>');
+    bar.append('<th class="sortbtn" target="ipaddresses">IPアドレス</th>');
+    bar.append('<th class="sortpad">&nbsp;</th>');
+    bar.append('<th class="sortpad">&nbsp;</th>');
+    bar.append('<th class="sortbtn" target="service">サービス名</th>');
+    bar.append('<th class="sortpad">&nbsp;</th>');
+    bar.append('<th class="sortbtn" target="hwid">HWID</th>');
+    bar.append('<th class="sortpad">&nbsp;</th>');
+    bar.append('<th class="sortbtn" target="rackunit">Rackunit</th>');
+    bar.append('<th class="sortbtn" target="alert">監視</th>');
+    bar.append('<th class="sortpad">&nbsp;</th>');
+    bar.append('<th class="sortpad border_right">&nbsp;</th>');
+    bar.children('th.sortbtn').each(function(){
+        $(this).attr('title', $(this).text()+'でソート');
+    });
+    if ( target_class ) {
+        bar.attr( 'target', target_class ); 
+    }
+    elem.after( bar );
+    return bar;
+}
+
+function appendHyperVisorSortbarAfter ( elem, target_class ) {
+    var bar = $('<tr class="sortbar"></tr>');
+    bar.append('<th class="sortpad border_left">&nbsp;</th>');
+    bar.append('<th class="sortbtn" target="displayname">ホスト名</th>');
+    bar.append('<th class="sortbtn" target="cpu">CPU Free</th>');
+    bar.append('<th class="sortbtn" target="memory">MEM Free</th>');
+    bar.append('<th class="sortbtn" target="disk">HDD Free</th>');
+    bar.append('<th class="sortbtn" target="service">サービス名</th>');
+    bar.append('<th class="sortpad">&nbsp;</th>');
+    bar.append('<th class="sortbtn" target="hwid">HWID</th>');
+    bar.append('<th class="sortpad">&nbsp;</th>');
+    bar.append('<th class="sortbtn" target="rackunit">Rackunit</th>');
+    bar.append('<th class="sortbtn" target="alert">監視</th>');
+    bar.append('<th class="sortpad">&nbsp;</th>');
+    bar.append('<th class="sortpad border_right">&nbsp;</th>');
+    bar.children('th.sortbtn').each(function(){
+        $(this).attr('title', $(this).text()+'でソート');
+    });
+    if ( target_class ) {
+        bar.attr( 'target', target_class ); 
+    }
+    elem.after( bar );
+    return bar;
+}
+
+function sortByColumn ( e ) {
+    var elem = $(e);
+    var numeric_sort_pattern = /^host_(cpu|memory|disk)$/;
+    var target_class = elem.parent('tr').attr('target');
+    var target_column = 'host_' + elem.attr('target');
+    var target = [];
+    var sort_field_fetch = function ( v ) {
+        return $(v).children('td.'+target_column).text().replace(/^\s+/,"");
+    };
+    if ( target_column.match( numeric_sort_pattern ) ) {
+        sort_field_fetch = function ( v ) {
+            return parseInt( $(v).children('td.'+target_column).text() );
+        };
+    }
+
+    elem.parent('tr').parent('tbody').children('tr').each( function(){
+        if ( $(this).attr('class').match('host_outline') ) {
+            if ( $($(this).children('td').get(0)).attr('class') == target_class || target_class == 'all' ) {
+                target.push( $(this) );
+                $(this).remove();
+            }
+        }
+    } );
+    if( elem.attr('order') == 'asc' ) {
+        elem.attr('order','desc');
+        $('span.sortorder').text('↓');
+        $('span.sortorder').attr('title', '降順');
+        target.sort(function(a,b){
+            return ( sort_field_fetch(b) > sort_field_fetch(a) ? 1 : -1 );
+        });
+        var psUrl = buildSortUrl( target_column, 'desc', target_class );
+        history.pushState(null, elem.text()+':'+'降順', psUrl);
+    }
+    else if( elem.attr('order') == 'desc' ) {
+        elem.attr('order','asc');
+        $('span.sortorder').text('↑');
+        $('span.sortorder').attr('title', '昇順');
+        target.sort(function(a,b){
+            return ( sort_field_fetch(a) > sort_field_fetch(b) ? 1 : -1 );
+        });
+        var psUrl = buildSortUrl( target_column, 'asc', target_class );
+        history.pushState(null, elem.text()+':'+'昇順', psUrl);
+    }
+    else {
+        $('th.sortbtn').attr('order', false);
+        $('span.sortorder').remove();
+        elem.attr('order','asc');
+        elem.html(elem.html()+'<span class="sortorder" title="昇順">↑</span>');
+        target.sort(function(a,b){
+            return ( sort_field_fetch(a) > sort_field_fetch(b) ? 1 : -1 );
+        });
+        var psUrl = buildSortUrl( target_column, 'asc', target_class );
+        history.pushState(null, elem.text()+':'+'昇順', psUrl);
+    }
+    $.each( target.reverse(), function(i, e){
+        $(e).click(function(ee){
+            toggle_item_selection(ee, 'host');
+        });
+        elem.parent('tr').after(e);
+    });
+}
+
+function getParams () {
+    var rtn;
+    if ( location.search ) {
+        rtn = {};
+        $.each( location.search.substring(1).split(/&/), function(i, kv) {
+            var m = kv.split(/=/);
+            var key = m[0];
+            var val = m[1];
+            rtn[key] = val;
+        } );
+    }
+    return rtn;
+}
+
+function serializeParams ( params ) {
+    var kv = [];
+    $.each( params, function( key, val ){
+        kv.push( key + '=' + val );
+    });
+    return kv.join('&');
+}
+
+function buildSortUrl ( sortby, order, sort_stat ) {
+    var params = getParams() || {} ;
+    params.sortby = sortby;
+    params.order = order;
+    params.sort_stat = sort_stat;
+    return location.pathname + '?' + serializeParams( params );
+}
+
+function sortByUrl () {
+    var params = getParams();
+    if ( params ) {
+        if ( params.sortby ) {
+            params.order = params.order ? params.order : 'asc' ;
+            params.sort_stat = params.sort_stat ? params.sort_stat : 'host_status_in_service' ;
+            var dom_order = params.order == 'asc' ? 'desc' : 'asc' ;
+            var order_label = params.order == 'desc' ? '↓'  : '↑' ;
+            var order_title = params.order == 'desc' ? '降順' : '昇順' ;
+            var sortby = params.sortby.replace(/^host_/,"");
+            var elem = $('tr.sortbar[target='+params.sort_stat+'] > th.sortbtn[target='+sortby+']');
+            elem.attr('order', dom_order);
+            elem.click();
+            elem.html(elem.html()+'<span class="sortorder" title="'+order_title+'">'+order_label+'</span>');
+        }
+    }
 }
