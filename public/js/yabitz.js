@@ -58,6 +58,37 @@ $(function(){
     // event for cloneable items add button
     $('div.listclone').click(function(e){clone_cloneable_item(e);});
 
+    // K/B shortcut for cloneable items on /ybz/host/create
+    if ( $('div.listclone').size() > 0 && $('div.listclone').closest('div.hostadd_item').size() > 0 ) {
+        $('div.listclone').click(function(){ $('span.hostadd_item_count').text( $('div.hostadd_item.cloneable').size() ) });
+        var kb_shortcut = 1;
+        var toggle_kb_shortcut_diag = function () {
+            var kb_shortcut_diag = $('div#kb_shortcut_diag');
+            if ( kb_shortcut > 0 && kb_shortcut_diag.css('display') == 'none' ) {
+                kb_shortcut_diag.show();
+            }
+            else if ( kb_shortcut <= 0 && kb_shortcut_diag.css('display') == 'block' ) {
+                kb_shortcut_diag.hide();
+            }
+        };
+        $('input,select').focus(function(){
+            kb_shortcut -= 1;
+            toggle_kb_shortcut_diag();
+        });
+        $('input,select').blur(function(){
+            kb_shortcut += 1;
+            toggle_kb_shortcut_diag();
+        });
+        $(document).keypress(function(event){
+            if (kb_shortcut > 0) {
+                // '+' to append additional host input
+                if ( event.keyCode == 43 ) {
+                    $($('div.listclone').get(0)).click();
+                }
+            }
+        })
+    }
+
     // events for entry-creation (host, contactmember, contact)
     $('form.mainform').submit(function(e){commit_main_form(e);});
     $('button.mainform_commit').click(function(e){$(e.target).closest('form.mainform').submit();});
@@ -910,24 +941,26 @@ function switch_combobox_input(event) {
 
 function searchFieldCheck ( elem ) {
     var e = $( elem );
-    var vName = e.attr('name').replace('field','value');
-    var vText = $("td > input[name="+ vName +"]");
-    var vSelect = $("td > select[name="+ vName +"]");
-    if ( e.val() === 'status' ) {
-        if (vSelect.attr('disabled')) {
-            vSelect.attr('disabled', false);
-            vSelect.show();
-            vText.attr('disabled', true)
-            vText.hide();
+    if ( typeof( e.attr('name') ) != 'undefined' ) {
+        var vName = e.attr('name').replace('field','value');
+        var vText = $("td > input[name="+ vName +"]");
+        var vSelect = $("td > select[name="+ vName +"]");
+        if ( e.val() === 'status' ) {
+            if (vSelect.attr('disabled')) {
+                vSelect.attr('disabled', false);
+                vSelect.show();
+                vText.attr('disabled', true)
+                vText.hide();
+            }
         }
-    }
-    else {
-        if (vText.attr('disabled')) {
-            vSelect.attr('disabled', true);
-            vSelect.hide();
-            vText.val('');
-            vText.attr('disabled', false);
-            vText.show();
+        else {
+            if (vText.attr('disabled')) {
+                vSelect.attr('disabled', true);
+                vSelect.hide();
+                vText.val('');
+                vText.attr('disabled', false);
+                vText.show();
+            }
         }
     }
 }

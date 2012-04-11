@@ -1,8 +1,14 @@
 -# coding: utf-8
-
+%div#kb_shortcut_diag 
+  %h2 キーボードショートカット ON
+  %p + : フォーム追加
 %div#toolbox_spacer_top
 %div#toolbox
   %div ホスト追加
+  (
+  %span.hostadd_item_count 1
+  ホスト
+  )
   %div{:style => "margin-left: 2em;"}
     %img{:src => "/images/1x1.gif"}
 %div#toolbox_spacer_bottom
@@ -93,7 +99,7 @@
                     %input.simple.optional{:type => "text", :name => "cpu0", :size => 17}
                   %td{:colspan => 2}
                     %div.listclone{:style => "text-align: right;"}
-                      %img.button{:src => "/images/adding.png"}
+                      %img.button{:src => "/images/adding.png", :title => "さらにホストを追加" }
                 %tr
                   %th.namefield Global IP
                   %td.inputfield
@@ -107,7 +113,7 @@
                     %input.simple.optional{:type => "text", :name => "tagchain0", :size => 17}
                   %td{:colspan => 2}
                     %div.listclone{:style => "text-align: right;"}
-                      %img.button{:src => "/images/adding.png"}
+                      %img.button{:src => "/images/adding.png", :title => "さらにホストを追加" }
             %div{:style => "padding-right: 3em; text-align: right;"}
               %button{:onclick => "window.location.reload(); return false;"}
                 %div{:style => "padding: 0.5em;"} キャンセル
