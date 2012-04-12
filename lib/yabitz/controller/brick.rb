@@ -66,14 +66,15 @@ class Yabitz::Application < Sinatra::Base
 
   get %r!/ybz/bricks/list/all(\.json|\.csv)?! do |ctype|
     authorized?
-    if request.params['p'].nil?
+    selected = request.params['p']
+    if selected.nil?
       @bricks = Yabitz::Model::Brick.all
       @cond = "全て"
     else
-      product = request.params['p']
-      @bricks = Yabitz::Model::Brick.query(:productname => product)
-      @cond = product
+      @bricks = Yabitz::Model::Brick.query(:productname => selected)
+      @cond = selected
     end
+    product_list = @bricks.map(&:productname).uniq.compact
     case ctype
     when '.json'
       response['Content-Type'] = 'application/json'
@@ -84,7 +85,7 @@ class Yabitz::Application < Sinatra::Base
     else
       @bricks.sort!
       @page_title = "機器一覧 (#{@cond})"
-      haml :bricks, :locals => {:cond => @cond}
+      haml :bricks, :locals => {:cond => @cond, :selected => selected, :products => product_list}
     end
   end
 
