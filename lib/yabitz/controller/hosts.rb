@@ -112,8 +112,8 @@ class Yabitz::Application < Sinatra::Base
       response['Content-Type'] = 'text/csv'
       Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hosts.map{|hv|hv.host} )
     else
-      @page_title = "仮想化基盤ホスト一覧"
-      haml :hypervisors, :locals => { :cond => "仮想化基盤ホスト キーワード:#{kw}" }
+      @page_title = "ハイパーバイザ一覧"
+      haml :hypervisors, :locals => { :cond => "ハイパーバイザ キーワード:#{kw}" }
     end
   end
 
@@ -133,8 +133,8 @@ class Yabitz::Application < Sinatra::Base
       response['Content-Type'] = 'text/csv'
       Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hosts.map{|hv|hv.host} )
     else
-      @page_title = "仮想化基盤ホスト一覧"
-      haml :hypervisors, :locals => { :cond => "仮想化基盤ホスト サービス:#{@srv.name} 関連" }
+      @page_title = "ハイパーバイザ一覧"
+      haml :hypervisors, :locals => { :cond => "ハイパーバイザ サービス:#{@srv.name} 関連" }
     end
   end
 
@@ -154,8 +154,8 @@ class Yabitz::Application < Sinatra::Base
       response['Content-Type'] = 'text/csv'
       Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hosts.map{|hv|hv.host} )
     else
-      @page_title = "仮想化基盤ホスト一覧"
-      haml :hypervisors, :locals => { :cond => "仮想化基盤ホスト サービス:#{@srv.name}" }
+      @page_title = "ハイパーバイザ一覧"
+      haml :hypervisors, :locals => { :cond => "ハイパーバイザ サービス:#{@srv.name}" }
     end
   end
 
@@ -170,8 +170,8 @@ class Yabitz::Application < Sinatra::Base
       response['Content-Type'] = 'text/csv'
       Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hosts.map{|hv|hv.host} )
     else
-      @page_title = "仮想化基盤ホスト一覧"
-      haml :hypervisors, :locals => { :cond => "仮想化基盤ホスト 全て" }
+      @page_title = "ハイパーバイザ一覧"
+      haml :hypervisors, :locals => { :cond => "ハイパーバイザ 全て" }
     end
   end
 

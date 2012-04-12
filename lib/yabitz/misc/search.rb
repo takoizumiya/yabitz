@@ -127,7 +127,7 @@ module Yabitz
       'charging' => '課金設定',
       'contact' => '連絡先',
       'mladdress' => 'ML',
-      'hypervisors' => '仮想化基盤',
+      'hypervisors' => 'ハイパーバイザ',
       'notes' => 'メモ',
       'urls' => 'サービスURL'
     }

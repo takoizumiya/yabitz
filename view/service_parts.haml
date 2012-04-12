@@ -18,7 +18,7 @@
     &= "課金設定: " + @srv.content.charging_title
   = field_editable 'service', @srv, :combobox, :contact, "連絡先", (@srv.contact ? h(@srv.contact.label) : ""), "未指定", :link => (@srv.contact ? "/ybz/contact/#{@srv.contact.oid}" : '#'), :display_value => @srv.contact.to_s, :opt_class => Yabitz::Model::Contact, :opt_value => :label, :opt_label => :label, :everybody => true
   = field_editable 'service', @srv, :text, :mladdress, "ML", @srv.mladdress, "登録なし"
-  = field_editable 'service', @srv, :text, :hypervisors, "仮想化基盤", @srv.hypervisors, "false"
+  = field_editable 'service', @srv, :text, :hypervisors, "ハイパーバイザ", @srv.hypervisors, "false"
   - [['サービスURL', 'urls']].each do |pair|
     - if @isadmin
       %form.inline.field_edit_form{:name => "editAdmin", :action => "/ybz/service/#{@srv.oid}", :method => 'POST', :onsubmit => 'return false;'}
