@@ -18,5 +18,6 @@
 %div#toolbox_spacer_bottom
 %div#maincontents
   %table#hostlist
-    - @hosts.each do |hypervisor|
-      = haml :hypervisor, :locals => { :hypervisor => hypervisor }
+    - if @hosts
+      - @hosts.each do |hypervisor|
+        = haml :hypervisor, :locals => { :hypervisor => hypervisor }

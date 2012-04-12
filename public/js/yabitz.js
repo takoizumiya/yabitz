@@ -1230,7 +1230,6 @@ function build_dom0_suggestion_select_box ( hvlist, e ) {
     }
     elem.append('<option value="OTHER">その他のハイパーバイザ</option>');
     elem.attr('disabled', false);
-    elem.val('');
     elem.show();
 }
 
@@ -1259,6 +1258,7 @@ function show_dom0_direct_input ( e, expected ) {
 function hide_dom0_direct_input_if_void ( e ) {
     var elem = $(e);
     var name = elem.attr('name');
+    var loading = elem.closest('table.inputitems.newhost').find('span.loading');
     var select = elem.closest('form').find('select[name='+name+']');
     if ( select ) {
         if ( elem.val().length < 1 ) {
@@ -1267,6 +1267,21 @@ function hide_dom0_direct_input_if_void ( e ) {
             select.show();
             elem.attr('disabled', true);
             elem.hide();
+        }
+        else {
+            elem.hide();
+            loading.show();
+            guess_dom0( elem.val(), function( hvlist ){
+                if ( hvlist[0] ) {
+                    build_dom0_suggestion_select_box( hvlist, select );
+                    select.val( hvlist[0].host.oid );
+                    select.change();
+                }
+                else {
+                    elem.show();
+                }
+                loading.hide();
+            })
         }
     }
 }
@@ -1311,4 +1326,11 @@ function find_from_suggested_dom0 ( e ) {
         result_list.attr('size', 1);
         result_box.hide();
     }
+}
+
+function guess_dom0 ( str, cb ) {
+    $.ajax({
+        url: '/ybz/hosts/suggest/guess.json?q='+str,
+        success: cb
+    });
 }

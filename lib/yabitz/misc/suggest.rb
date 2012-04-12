@@ -95,18 +95,23 @@ module Yabitz
       return self.sort( hosts )
     end
     def self.related_hosts ( srv )
-       hosts = Yabitz::Model::Content.query(:services => srv).map{ |content|
-           content.services
-       }.flatten.select{ |service|
-           service.hypervisors == true
-       }.flatten.map{ |service|
-           Yabitz::Model::Host.query(:service => service.oid )
-       }.flatten.select{|host|
-           host.status == Yabitz::Model::Host::STATUS_IN_SERVICE
-       }.map{|host|
-           Yabitz::HyperVisor.new( host )
-       }
-       return self.sort( hosts )
+      hosts = Yabitz::Model::Content.query(:services => srv).map{ |content|
+        content.services
+      }.flatten.select{ |service|
+        service.hypervisors == true
+      }.map{ |service|
+        Yabitz::Model::Host.query(:service => service.oid )
+      }.flatten.select{|host|
+        host.status == Yabitz::Model::Host::STATUS_IN_SERVICE
+      }.map{|host|
+        Yabitz::HyperVisor.new( host )
+      }
+      return self.sort( hosts )
+    end
+    def self.guess ( str )
+      return self.all_hosts.select{|hv|
+        hv.host.rackunit == str || hv.host.display_name.to_s == str
+      }.shift
     end
   end
 end

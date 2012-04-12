@@ -99,6 +99,24 @@ class Yabitz::Application < Sinatra::Base
     end
   end
 
+  get %r!/ybz/hosts/suggest/guess(\.json|\.csv)?! do |ctype|
+    authorized?
+    kw = request.params['q']
+    guess_host = Yabitz::Suggest.guess( kw )
+    @hosts = guess_host ? [ guess_host ] : []
+    case ctype
+    when '.json'
+      response['Content-Type'] = 'application/json'
+      @hosts.map{|hv|hv.to_tree}.to_json 
+    when '.csv'
+      response['Content-Type'] = 'text/csv'
+      Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hosts.map{|hv|hv.host} )
+    else
+      @page_title = "仮想化基盤ホスト一覧"
+      haml :hypervisors, :locals => { :cond => "仮想化基盤ホスト キーワード:#{kw}" }
+    end
+  end
+
   get %r!/ybz/hosts/suggest/service/(\d+)(\.json|\.csv)?! do |oid, ctype|
     authorized?
 
