@@ -102,7 +102,7 @@ module Yabitz
        }.flatten.map{ |service|
            Yabitz::Model::Host.query(:service => service.oid )
        }.flatten.select{|host|
-           host.status = Yabitz::Model::Host::STATUS_IN_SERVICE
+           host.status == Yabitz::Model::Host::STATUS_IN_SERVICE
        }.map{|host|
            Yabitz::HyperVisor.new( host )
        }
