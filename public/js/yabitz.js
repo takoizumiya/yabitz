@@ -82,7 +82,7 @@ $(function(){
         $(document).keypress(function(event){
             if (kb_shortcut > 0) {
                 // '+' to append additional host input
-                if ( event.keyCode == 43 ) {
+                if ( event.which == 43 ) {
                     $($('div.listclone').get(0)).click();
                 }
             }
