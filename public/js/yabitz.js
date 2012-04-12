@@ -62,27 +62,16 @@ $(function(){
     if ( $('div.listclone').size() > 0 && $('div.listclone').closest('div.hostadd_item').size() > 0 ) {
         $('div.listclone').click(function(){ $('span.hostadd_item_count').text( $('div.hostadd_item.cloneable').size() ) });
         var kb_shortcut = 1;
-        var toggle_kb_shortcut_diag = function () {
-            var kb_shortcut_diag = $('div#kb_shortcut_diag');
-            if ( kb_shortcut > 0 && kb_shortcut_diag.css('display') == 'none' ) {
-                kb_shortcut_diag.show();
-            }
-            else if ( kb_shortcut <= 0 && kb_shortcut_diag.css('display') == 'block' ) {
-                kb_shortcut_diag.hide();
-            }
-        };
         $('input,select').focus(function(){
             kb_shortcut -= 1;
-            toggle_kb_shortcut_diag();
         });
         $('input,select').blur(function(){
             kb_shortcut += 1;
-            toggle_kb_shortcut_diag();
         });
         $(document).keypress(function(event){
             if (kb_shortcut > 0) {
-                // '+' to append additional host input
-                if ( event.which == 43 ) {
+                // press 'a' key to append additional host input
+                if ( event.which == 97 ) {
                     $($('div.listclone').get(0)).click();
                 }
             }
@@ -178,21 +167,25 @@ $(function(){
     // build Dom0-suggestion select-box
     if ( $('select.host_hypervisor').size() > 0 ) {
         var service_select = $('select[name=service]');
-        $('div.loading').show();
+        $('select.host_hypervisor').hide();
+        $('span.loading').show();
         fetch_dom0_suggest( service_select.val(), function(hvlist) {
-            $('div.loading').hide();
+            $('span.loading').hide();
             $('select.host_hypervisor').each(function(i, e){
                 build_dom0_suggestion_select_box( hvlist, e );
             });
+            $('select.host_hypervisor').show();
         }); 
         service_select.change(function(){
             var service_oid = $(this).val();
-            $('div.loading').show();
+            $('select.host_hypervisor').hide();
+            $('span.loading').show();
             fetch_dom0_suggest( service_oid, function(hvlist) {
-                $('div.loading').hide();
+                $('span.loading').hide();
                 $('select.host_hypervisor').each(function(i, e){
                     build_dom0_suggestion_select_box( hvlist, e );
                 });
+                $('select.host_hypervisor').show();
             });
         });
     }

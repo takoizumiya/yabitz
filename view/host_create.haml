@@ -1,11 +1,4 @@
 -# coding: utf-8
-%div.loading
-  %h2 
-    %img{:src => '/images/load_m.gif'}
-
-%div#kb_shortcut_diag 
-  %h2 キーボードショートカット ON
-  %p + : フォーム追加
 
 %div.hidden.resultbox
   %select
@@ -13,6 +6,9 @@
 %div#toolbox_spacer_top
 %div#toolbox
   %div ホスト追加
+  %p
+    %b キーボードショートカット
+    A=フォーム追加
   (
   %span.hostadd_item_count 1
   ホスト
@@ -109,9 +105,7 @@
                   %th.namefield CPU
                   %td.inputfield.left
                     %input.simple.optional{:type => "text", :name => "cpu0", :size => 17}
-                  %td{:colspan => 2}
-                    %div.listclone{:style => "text-align: right;"}
-                      %img.button{:src => "/images/adding.png", :title => "さらにホストを追加" }
+                  %td{:colspan => 2} &nbsp;
                 %tr
                   %th.namefield Global IP
                   %td.inputfield.left
