@@ -120,22 +120,6 @@ class Yabitz::Application < Sinatra::Base
     end
   end
 
-  get %r!/ybz/hosts/suggest(\.html|\.json|\.csv)?! do |ctype|
-    authorized?
-    @hosts = Yabitz::Suggest.all_hosts()
-    case ctype
-    when '.json'
-      response['Content-Type'] = 'application/json'
-      @hosts.map{|hv|hv.to_tree}.to_json
-    when '.csv'
-      response['Content-Type'] = 'text/csv'
-      Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hosts.map{|hv|hv.host} )
-    else
-      @page_title = "仮想化基盤ホスト一覧"
-      haml :hypervisors, :locals => { :cond => "仮想化基盤ホスト 全て" }
-    end
-  end
-
   get %r!/ybz/hosts/suggest/(\d+)(\.json|\.csv)?! do |oid, ctype|
     authorized?
 
@@ -155,7 +139,22 @@ class Yabitz::Application < Sinatra::Base
       @page_title = "仮想化基盤ホスト一覧"
       haml :hypervisors, :locals => { :cond => "仮想化基盤ホスト サービス:#{@srv.name}" }
     end
+  end
 
+  get %r!/ybz/hosts/suggest(\.html|\.json|\.csv)?! do |ctype|
+    authorized?
+    @hosts = Yabitz::Suggest.all_hosts()
+    case ctype
+    when '.json'
+      response['Content-Type'] = 'application/json'
+      @hosts.map{|hv|hv.to_tree}.to_json
+    when '.csv'
+      response['Content-Type'] = 'text/csv'
+      Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hosts.map{|hv|hv.host} )
+    else
+      @page_title = "仮想化基盤ホスト一覧"
+      haml :hypervisors, :locals => { :cond => "仮想化基盤ホスト 全て" }
+    end
   end
 
 end
