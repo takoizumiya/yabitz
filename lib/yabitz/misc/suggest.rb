@@ -95,7 +95,9 @@ module Yabitz
       return self.sort( hosts )
     end
     def self.related_hosts ( srv )
-      hosts = Yabitz::Model::Content.query(:services => srv).map{ |content|
+      hosts = Yabitz::Model::Content.all.select{ |content|
+        content.services.index( srv )
+      }.flatten.map{ |content|
         content.services
       }.flatten.select{ |service|
         service.hypervisors == true
