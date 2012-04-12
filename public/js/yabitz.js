@@ -175,10 +175,22 @@ $(function(){
 
     // build Dom0-suggestion select-box
     if ( $('select.host_hypervisor').size() > 0 ) {
-        $('select[name=service]').change(function(){
-            var service_oid = $(this).val();
+        var service_select = $('select[name=service]');
+        $('div.loading').show();
+        fetch_dom0_suggest( service_select.val(), function(hvlist) {
+            $('div.loading').hide();
             $('select.host_hypervisor').each(function(i, e){
-                build_dom0_suggestion_select_box( service_oid, e );
+                build_dom0_suggestion_select_box( hvlist, e );
+            });
+        }); 
+        service_select.change(function(){
+            var service_oid = $(this).val();
+            $('div.loading').show();
+            fetch_dom0_suggest( service_oid, function(hvlist) {
+                $('div.loading').hide();
+                $('select.host_hypervisor').each(function(i, e){
+                    build_dom0_suggestion_select_box( hvlist, e );
+                });
             });
         });
     }
@@ -1178,12 +1190,18 @@ function select_hypervisor ( e ) {
     }
 }
 
-function build_dom0_suggestion_select_box ( oid, e ) {
+function build_dom0_suggestion_select_box ( hvlist, e ) {
     var elem = $(e);
-    elem.after('<span class="loading">Loading...</span>');
+    var name = elem.attr('name');
+    var input = elem.closest('form').find('input[name='+name+']');
+    var hiddenbox = $('div.hidden.suggested_items');
+    hiddenbox.html('');
+    input.attr('disabled', true);
+    input.hide();
+    elem.change(function(){ show_dom0_direct_input(this, 'OTHER') });
     elem.hide();
     elem.html('<option value="">(選択なし)</option>');
-    $.get('/ybz/hosts/suggest.json', function(hvlist){
+    if ( typeof( hvlist ) != 'undefined' ) {
         $.each( hvlist, function(i, hv){
             var host = hv.host;
             var display_item = [ host.display, host.content.rackunit ];
@@ -1191,35 +1209,106 @@ function build_dom0_suggestion_select_box ( oid, e ) {
                 display_item.push('['+ host.content.globalips.join(',') + ']');
             }
             var display = display_item.join(' | ');
+            var opt = $('<option></option>');
+            opt.attr({ 
+                'class': 'hypervisor_item', 
+                'value': host.oid,
+                'cpu': host.content.cpu,
+                'disk': host.content.disk,
+                'hwid': host.content.hwid,
+                'hwinfo': host.content.hwinfo,
+                'memory': host.content.memory,
+                'os': host.content.os,
+                'rackunit': host.content.rackunit
+            });
+            opt.text( display );
+            hiddenbox.append( opt );
             if ( elem.children('option.hypervisor_item').length < 10 ) {
-                var opt = $('<option></option>');
-                opt.attr({ 
-                    'class': 'hypervisor_item', 
-                    'value': host.oid,
-                    'cpu': host.content.cpu,
-                    'disk': host.content.disk,
-                    'hwid': host.content.hwid,
-                    'hwinfo': host.content.hwinfo,
-                    'memory': host.content.memory,
-                    'os': host.content.os,
-                    'rackunit': host.content.rackunit
-                });
-                opt.text( display );
                 elem.append( opt );
             }
         });
-        elem.append('<option onclick="show_dom0_direct_input(this);">その他のハイパーバイザ</option>');
-        if ( ! elem.attr('disabled') ) {
-            elem.show();
-        }
-        $('span.loading').remove();
-    })
+    }
+    elem.append('<option value="OTHER">その他のハイパーバイザ</option>');
+    elem.attr('disabled', false);
+    elem.val('');
+    elem.show();
 }
 
-function show_dom0_direct_input ( e ) {
+function fetch_dom0_suggest ( srv_oid, cb ) {
+    var hvlist;
+    $.ajax({
+        url: '/ybz/hosts/suggest/service/'+srv_oid+'.json',
+        success: cb
+    });
+}
+
+function show_dom0_direct_input ( e, expected ) {
     var elem = $(e);
-    var select = elem.closest('select');
-    var input = $('<input name="hypervisor" />');
-    select.attr('disabled',true);
-    select.hide();
+    var name = elem.attr('name');
+    var input = elem.closest('form').find('input[name='+name+']');
+    if ( input ) {
+        if ( elem.val() == expected ) {
+            input.attr('disabled', false);
+            input.show();
+            elem.attr('disabled', true);
+            elem.hide();
+        }
+    }
+}
+
+function hide_dom0_direct_input_if_void ( e ) {
+    var elem = $(e);
+    var name = elem.attr('name');
+    var select = elem.closest('form').find('select[name='+name+']');
+    if ( select ) {
+        if ( elem.val().length < 1 ) {
+            select.attr('disabled', false);
+            select.val('');
+            select.show();
+            elem.attr('disabled', true);
+            elem.hide();
+        }
+    }
+}
+
+function find_from_suggested_dom0 ( e ) {
+    var elem = $(e);
+    var name = elem.attr('name');
+    var str = elem.val();
+    var hiddenbox = $('div.hidden.suggested_items');
+    var result_list = $('div.hidden.resultbox > select');
+    var result_box = $('div.hidden.resultbox');
+    var dom0_select = elem.closest('form').find('select[name='+name+']');
+    result_list.unbind();
+    result_list.click(function(){
+        var selected = result_list.children('option:selected');
+        dom0_select.html('<option value="">(選択なし)</option>');
+        dom0_select.append(selected.clone());
+        dom0_select.append('<option value="OTHER">その他のハイパーバイザ</option>');
+        dom0_select.attr('disabled', false);
+        dom0_select.val(selected.attr('value'));
+        dom0_select.show();
+        dom0_select.change();
+        elem.attr('disabled', true);
+        elem.hide();
+        result_box.hide();
+    });
+    result_list.html('');
+    hiddenbox.children('option').each(function(i, o){
+        var opt = $(o);
+        if ( str.length > 0 && opt.text().match( str ) ) {
+            result_list.append( opt.clone() );
+        }
+    });
+    if ( result_list.children('option').size() > 0 ) {
+        var top = parseInt( elem.position().top ) + 24;
+        var left = parseInt( elem.position().left );
+        result_list.attr('size', result_list.children('option').size());
+        result_box.show();
+        result_box.css( { 'top': top + 'px', 'left': left + 'px' } );
+    }
+    else {
+        result_list.attr('size', 1);
+        result_box.hide();
+    }
 }

@@ -1,7 +1,14 @@
 -# coding: utf-8
+%div.loading
+  %h2 ロード中...
+
 %div#kb_shortcut_diag 
   %h2 キーボードショートカット ON
   %p + : フォーム追加
+
+%div.hidden.resultbox
+  %select
+
 %div#toolbox_spacer_top
 %div#toolbox
   %div ホスト追加
@@ -23,6 +30,7 @@
                 %td.namefield サービス
                 %td :
                 %td.inputfield
+                  %div.hidden.suggested_items
                   %select{:name => "service"}
                     - Yabitz::Model::Service.all.sort.each do |service|
                       - if target and target.oid == service.oid
@@ -48,6 +56,7 @@
                         %option{:value => h(type)}&= type
                   %th.namefield ハイパーバイザ
                   %td.inputfield
+                    %input.host_hypervisor{:name => "hypervisor0", :onkeyup => "find_from_suggested_dom0(this);", :onchange => "hide_dom0_direct_input_if_void(this);", :disabled => true}
                     %select.host_hypervisor{:name => "hypervisor0", :onchange => "select_hypervisor(this);" }
                       %option{:value => ""} （選択なし）
                       - Yabitz::Suggest.all_hosts.each do |hv|
