@@ -51,12 +51,12 @@
               %table.inputitems.newhost
                 %tr
                   %th.namefield タイプ
-                  %td.inputfield
+                  %td.inputfield.left
                     %select.host_type{:name => "type0" }
                       - Yabitz::HostType.names.each do |type|
                         %option{:value => h(type)}&= type
                   %th.namefield ハイパーバイザ
-                  %td.inputfield
+                  %td.inputfield.right
                     %span.loading
                       %img{:src => '/images/load_s.gif'}
                     %input.host_hypervisor{:name => "hypervisor0", :onkeyup => "find_from_suggested_dom0(this);", :onchange => "hide_dom0_direct_input_if_void(this);", :disabled => true}
@@ -69,21 +69,21 @@
                             #{hv.host.globalips}
                 %tr
                   %th.namefield ラック位置
-                  %td.inputfield
+                  %td.inputfield.left
                     %input.simple.optional{:type => "text", :name => "rackunit0", :size => 17}
                   %th.namefield HWID
-                  %td.inputfield
+                  %td.inputfield.right
                     %input.simple.optional{:type => "text", :name => "hwid0", :size => 17}
                 %tr
                   %th.namefield DNSName
-                  %td.inputfield
+                  %td.inputfield.left
                     %input.simple.blank_onclone{:type => "text", :name => "dnsnames0", :size => 17} 
                   %th.namefield Local IP
-                  %td.inputfield
+                  %td.inputfield.right
                     %input.simple.blank_onclone{:type => "text", :name => "localips0", :size => 17}
                 %tr
                   %th.namefield HW
-                  %td.inputfield
+                  %td.inputfield.left
                     %select{:name => "hwinfo0"}
                       - Yabitz::Model::HwInformation.all.sort.each do |hwinfo|
                         - if hwinfo.prior
@@ -91,7 +91,7 @@
                         - else
                           %option{:value => hwinfo.oid}&= hwinfo.to_s
                   %th.namefield OS
-                  %td.inputfield
+                  %td.inputfield.right
                     %select{:name => "os0"}
                       - Yabitz::Model::OSInformation.all.sort.each do |osinfo|
                         - if osinfo.prior
@@ -100,28 +100,28 @@
                           %option.optional{:value => osinfo.oid}&= osinfo.name
                 %tr
                   %th.namefield メモリ
-                  %td.inputfield
+                  %td.inputfield.left
                     %input.simple{:type => "text", :name => "memory0", :size => 17}
                   %th.namefield ディスク
-                  %td.inputfield
+                  %td.inputfield.right
                     %input.simple{:type => "text", :name => "disk0", :size => 17}
                 %tr
                   %th.namefield CPU
-                  %td.inputfield
+                  %td.inputfield.left
                     %input.simple.optional{:type => "text", :name => "cpu0", :size => 17}
                   %td{:colspan => 2}
                     %div.listclone{:style => "text-align: right;"}
                       %img.button{:src => "/images/adding.png", :title => "さらにホストを追加" }
                 %tr
                   %th.namefield Global IP
-                  %td.inputfield
+                  %td.inputfield.left
                     %input.simple.optional{:type => "text", :name => "globalips0", :size => 17}
                   %th.namefield Virtual IP
-                  %td.inputfield
+                  %td.inputfield.right
                     %input.simple.optional{:type => "text", :name => "virtualips0", :size => 17}
                 %tr
                   %th.namefield タグ
-                  %td.inputfield
+                  %td.inputfield.left
                     %input.simple.optional{:type => "text", :name => "tagchain0", :size => 17}
                   %td{:colspan => 2}
                     %div.listclone{:style => "text-align: right;"}
