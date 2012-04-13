@@ -58,11 +58,6 @@
                     %input.host_hypervisor{:name => "hypervisor0", :onkeyup => "find_from_suggested_dom0(this);", :onchange => "hide_dom0_direct_input_if_void(this);", :disabled => true}
                     %select.host_hypervisor{:name => "hypervisor0", :onchange => "select_hypervisor(this);" }
                       %option{:value => ""} （選択なし）
-                      - Yabitz::Suggest.all_hosts.each do |hv|
-                        %option{:value => hv.host.oid, :rackunit => hv.host.rackunit, :hwid => hv.host.hwid, :hwinfo => hv.host.hwinfo, :os => hv.host.os, :cpu => hv.host.cpu, :memory => hv.host.memory, :disk => hv.host.disk }
-                          #{hv.host.display_name.to_s()} | #{hv.host.rackunit}
-                          - if hv.host.globalips.size() > 0
-                            #{hv.host.globalips}
                 %tr
                   %th.namefield ラック位置
                   %td.inputfield.left

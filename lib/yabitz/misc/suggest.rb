@@ -73,42 +73,32 @@ module Yabitz
   end
 
   module Suggest
-    def self.sort ( hosts )
-      return hosts.sort{ | a, b |
-        b.memory_unassigned <=> a.memory_unassigned
-      }.sort{ | a, b |
-        b.cpu_unassigned <=> a.cpu_unassigned
+    def self.sort(hypervisors)
+      hypervisors.sort {|a,b|
+        v1 = b.cpu_unassigned <=> a.cpu_unassigned
+        if v1 != 0
+          v1
+        else
+          b.memory_unassigned <=> a.memory_unassigned
+        end
       }
     end
-    def self.hosts ( srv )
-      hosts = Yabitz::Model::Host.query(:service => srv).select{|h| 
-        h.status == Yabitz::Model::Host::STATUS_IN_SERVICE
-      }.flatten.map{ | host |
-        Yabitz::HyperVisor.new( host )
-      }
-      return self.sort( hosts )
+    def self.hypervisors(srv)
+      Yabitz::Model::Host.query(:service => srv, :status => Yabitz::Model::Host::STATUS_IN_SERVICE).map{|h| Yabitz::HyperVisor.new(h)}
     end
-    def self.all_hosts ()
-      hosts = Yabitz::Model::Service.query(:hypervisors => true).map{ |service|
-        self.hosts( service )
-      }.flatten
-      return self.sort( hosts )
+    def self.all_hypervisors
+      hvs = []
+      Yabitz::Model::Service.query(:hypervisors => true).each do |service|
+        hvs += self.hypervisors(service)
+      end
+      self.sort(hvs)
     end
-    def self.related_hosts ( srv )
-      hosts = Yabitz::Model::Content.all.select{ |content|
-        content.services.index( srv )
-      }.flatten.map{ |content|
-        content.services
-      }.flatten.select{ |service|
-        service.hypervisors == true
-      }.map{ |service|
-        Yabitz::Model::Host.query(:service => service.oid )
-      }.flatten.select{|host|
-        host.status == Yabitz::Model::Host::STATUS_IN_SERVICE
-      }.map{|host|
-        Yabitz::HyperVisor.new( host )
-      }
-      return self.sort( hosts )
+    def self.related_hypervisors(srv)
+      hvs = []
+      srv.content.services.select{|s| s.hypervisors}.each do |service|
+        hvs += self.hypervisors(service)
+      end
+      self.sort(hvs)
     end
     def self.guess ( str )
       return self.all_hosts.select{|hv|

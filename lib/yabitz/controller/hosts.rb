@@ -102,15 +102,15 @@ class Yabitz::Application < Sinatra::Base
   get %r!/ybz/hosts/suggest/guess(\.json|\.csv)?! do |ctype|
     authorized?
     kw = request.params['q']
-    guess_host = Yabitz::Suggest.guess( kw )
-    @hosts = guess_host ? [ guess_host ] : []
+    guess_hypervisors = Yabitz::Suggest.guess( kw )
+    @hvs = guess_hypervisors ? [ guess_hypervisors ] : []
     case ctype
     when '.json'
       response['Content-Type'] = 'application/json'
-      @hosts.map{|hv|hv.to_tree}.to_json 
+      @hvs[0..20].map(&:to_tree).to_json 
     when '.csv'
       response['Content-Type'] = 'text/csv'
-      Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hosts.map{|hv|hv.host} )
+      Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hvs.map(&:to_tree) )
     else
       @page_title = "ハイパーバイザ一覧"
       haml :hypervisors, :locals => { :cond => "ハイパーバイザ キーワード:#{kw}" }
@@ -123,15 +123,15 @@ class Yabitz::Application < Sinatra::Base
     @srv = Yabitz::Model::Service.get(oid.to_i)
     pass unless @srv # object not found -> HTTP 404
 
-    @hosts = Yabitz::Suggest.related_hosts( @srv )
+    @hvs = Yabitz::Suggest.related_hypervisors(@srv)
 
     case ctype
     when '.json'
       response['Content-Type'] = 'application/json'
-      @hosts.map{|hv|hv.to_tree}.to_json
+      @hvs[0..20].map(&:to_tree).to_json
     when '.csv'
       response['Content-Type'] = 'text/csv'
-      Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hosts.map{|hv|hv.host} )
+      Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hvs.map(&:to_tree) )
     else
       @page_title = "ハイパーバイザ一覧"
       haml :hypervisors, :locals => { :cond => "ハイパーバイザ サービス:#{@srv.name} 関連" }
@@ -144,15 +144,15 @@ class Yabitz::Application < Sinatra::Base
     @srv = Yabitz::Model::Service.get(oid.to_i)
     pass unless @srv # object not found -> HTTP 404
 
-    @hosts = Yabitz::Suggest.hosts( @srv )
+    @hvs = Yabitz::Suggest.sort(Yabitz::Suggest.hypervisors(@srv))
 
     case ctype
     when '.json'
       response['Content-Type'] = 'application/json'
-      @hosts.map{|hv|hv.to_tree}.to_json
+      @hvs.map(&:to_tree).to_json
     when '.csv'
       response['Content-Type'] = 'text/csv'
-      Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hosts.map{|hv|hv.host} )
+      Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hvs.map(&:to_tree) )
     else
       @page_title = "ハイパーバイザ一覧"
       haml :hypervisors, :locals => { :cond => "ハイパーバイザ サービス:#{@srv.name}" }
@@ -161,14 +161,14 @@ class Yabitz::Application < Sinatra::Base
 
   get %r!/ybz/hosts/suggest(\.html|\.json|\.csv)?! do |ctype|
     authorized?
-    @hosts = Yabitz::Suggest.all_hosts()
+    @hvs = Yabitz::Suggest.sort(Yabitz::Suggest.all_hypervisors)
     case ctype
     when '.json'
       response['Content-Type'] = 'application/json'
-      @hosts.map{|hv|hv.to_tree}.to_json
+      @hvs.map(&:to_tree).to_json
     when '.csv'
       response['Content-Type'] = 'text/csv'
-      Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hosts.map{|hv|hv.host} )
+      Yabitz::Model::Host.build_raw_csv( Yabitz::Model::Host::CSVFIELDS_L, @hvs.map(&:to_tree) )
     else
       @page_title = "ハイパーバイザ一覧"
       haml :hypervisors, :locals => { :cond => "ハイパーバイザ 全て" }
