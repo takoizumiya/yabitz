@@ -101,7 +101,7 @@ module Yabitz
       self.sort(hvs)
     end
     def self.guess(str)
-      return self.all_hosts.select{|hv|
+      return self.all_hypervisors.select{|hv|
         hv.host.rackunit == str || hv.host.display_name.to_s == str
       }.shift
     end
