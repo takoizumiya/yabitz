@@ -118,4 +118,17 @@ class Yabitz::Application < Sinatra::Base
     end
     "ok"
   end
+
+  get '/ybz/ipaddress/suggest.json' do
+    authorized?
+    ip = request.params['ip'] ? IPAddr.new(request.params['ip']) : nil
+    pass unless ip # object not found -> HTTP 404
+
+    exclude = request.params['ex']
+    ipsuggest = Yabitz::Suggest::IPAddress.new(ip)
+    localip = ipsuggest.suggest(exclude)
+
+    response['Content-Type'] = 'application/json'
+    { :localip => localip }.to_json
+  end
 end
