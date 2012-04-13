@@ -4,7 +4,7 @@ require_relative '../model'
 
 module Yabitz
   module UnitNormalizer
-    def self.memory ( mem )
+    def self.memory(mem)
       rtn = 0;
       mem_ptn = /^([\d\.]+?)(G|M)/
       if mem
@@ -16,7 +16,7 @@ module Yabitz
       return rtn
     end
 
-    def self.cpu ( cpu )
+    def self.cpu(cpu)
       rtn = 1;
       cpu_ptn = /^(\d+)\s/
       if cpu
@@ -28,7 +28,7 @@ module Yabitz
       return rtn
     end
 
-    def self.disk ( disk )
+    def self.disk(disk)
       rtn = 0;
       disk_ptn = /^([\d\.]+)(G|T)/
       if disk
@@ -43,20 +43,20 @@ module Yabitz
   end
 
   class HyperVisor
-    def initialize ( host )
+    def initialize(host)
       @host = host
       @memory_assigned = host.children.map{|child|Yabitz::UnitNormalizer.memory(child.memory)}.inject{|x,y|x+y} || 0
       @cpu_assigned = host.children.map{|child|Yabitz::UnitNormalizer.cpu(child.cpu)}.inject{|x,y|x+y} || 0
       @disk_assigned = host.children.map{|child|Yabitz::UnitNormalizer.disk(child.disk)}.inject{|x,y|x+y} || 0
     end
     attr_reader :host, :memory_assigned, :cpu_assigned
-    def memory_unassigned ()
+    def memory_unassigned()
       return Yabitz::UnitNormalizer.memory( @host.memory ) - @memory_assigned
     end
-    def cpu_unassigned ()
+    def cpu_unassigned()
       return Yabitz::UnitNormalizer.cpu( @host.cpu ) - @cpu_assigned
     end
-    def disk_unassigned ()
+    def disk_unassigned()
       return Yabitz::UnitNormalizer.disk( @host.disk ) - @disk_assigned
     end
     def to_tree
@@ -100,7 +100,7 @@ module Yabitz
       end
       self.sort(hvs)
     end
-    def self.guess ( str )
+    def self.guess(str)
       return self.all_hosts.select{|hv|
         hv.host.rackunit == str || hv.host.display_name.to_s == str
       }.shift
