@@ -95,7 +95,7 @@ module Yabitz
     end
     def self.related_hypervisors(srv)
       hvs = []
-      srv.content.services.select{|s| s.hypervisors}.each do |service|
+      Yabitz::Model::Content.query(:dept => srv.content.dept).map(&:services).flatten.select{|s| s.hypervisors}.each do |service|
         hvs += self.hypervisors(service)
       end
       self.sort(hvs)
