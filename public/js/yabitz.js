@@ -1189,7 +1189,6 @@ function build_dom0_suggestion_select_box ( hvlist, e ) {
     var name = elem.attr('name');
     var input = elem.closest('form').find('input[name='+name+']');
     var hiddenbox = $('div.hidden.suggested_items');
-    hiddenbox.html('');
     input.attr('disabled', true);
     input.hide();
     elem.unbind('change');
@@ -1203,17 +1202,19 @@ function build_dom0_suggestion_select_box ( hvlist, e ) {
         })
         var selected = $(this).children('option:selected');
         var select = selected.closest('select');
-        if ( select.val() != 'OTHER' && select.val() != '' ) {
-            var num = select.attr('name').match(/^hypervisor(\d+)$/)[1];
-            var localip_input = selected.closest('div.hostadd_item.cloneable').find('input[name=localips'+num+']');
-            var loading = localip_input.closest('td').find('span.loading');
-            loading.show();
-            localip_input.attr('disabled', true);
-            suggest_ip( selected.attr('ip'), excluded_ip, function(json){
-                localip_input.val(json.localip);
-                loading.hide();
-                localip_input.attr('disabled', false);
-            });
+        if ( select.size() > 0 ) {
+            if ( select.val() != 'OTHER' && select.val() != '' ) {
+                var num = select.attr('name').match(/^hypervisor(\d+)$/)[1];
+                var localip_input = selected.closest('div.hostadd_item.cloneable').find('input[name=localips'+num+']');
+                var loading = localip_input.closest('td').find('span.loading');
+                loading.show();
+                localip_input.attr('disabled', true);
+                suggest_ip( selected.attr('ip'), excluded_ip, function(json){
+                    localip_input.val(json.localip);
+                    loading.hide();
+                    localip_input.attr('disabled', false);
+                });
+            }
         }
         show_dom0_direct_input(this, 'OTHER');
     });
@@ -1320,7 +1321,8 @@ function find_from_suggested_dom0 ( e ) {
     var dom0_select = elem.closest('form').find('select[name='+name+']');
     var loading = dom0_select.closest('td').find('span.loading.hypervisor');
     result_list.unbind();
-    result_list.click(function(){
+    result_list.val('');
+    result_list.change(function(){
         var selected = result_list.children('option:selected');
         dom0_select.html('<option value="">(選択なし)</option>');
         dom0_select.append(selected.clone());
@@ -1371,4 +1373,17 @@ function suggest_ip ( dom0_ip, exclude, cb ) {
         data: params,
         success: cb
     });
+}
+
+function unique_item ( items ) {
+    var dict = {};
+    var rtn = [];
+    $.each( items, function(i, e){
+        var elem = $(e);
+        dict[elem.val()] = dict[elem.val()] ? dict[elem.val()] : elem;
+    });
+    $.each( dict, function(k, v){
+        rtn.push( v );
+    });
+    return rtn;
 }
