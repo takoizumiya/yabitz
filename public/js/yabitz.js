@@ -1188,12 +1188,6 @@ function build_dom0_suggestion_select_box ( hvlist, e ) {
     var elem = $(e);
     var name = elem.attr('name');
     var input = elem.closest('form').find('input[name='+name+']');
-    var localip_input;
-    elem.closest('div.hostadd_item').find('input').each(function(i, t){
-        if( $(t).attr('name').match(/^localips/) ) {
-            localip_input = $(t);
-        }
-    });
     var hiddenbox = $('div.hidden.suggested_items');
     hiddenbox.html('');
     input.attr('disabled', true);
@@ -1207,9 +1201,19 @@ function build_dom0_suggestion_select_box ( hvlist, e ) {
             }
         })
         var selected = $(this).children('option:selected');
-        suggest_ip( selected.attr('ip'), excluded_ip, function(json){
-            localip_input.val(json.localip);
-        });
+        var select = selected.closest('select');
+        if ( select.val() != 'OTHER' && select.val() != '' ) {
+            var num = select.attr('name').match(/^hypervisor(\d+)$/)[1];
+            var localip_input = selected.closest('div.hostadd_item.cloneable').find('input[name=localips'+num+']');
+            var loading = localip_input.closest('td').find('span.loading');
+            loading.show();
+            localip_input.attr('disabled', true);
+            suggest_ip( selected.attr('ip'), excluded_ip, function(json){
+                localip_input.val(json.localip);
+                loading.hide();
+                localip_input.attr('disabled', false);
+            });
+        }
         show_dom0_direct_input(this, 'OTHER');
     });
     elem.hide();
@@ -1274,6 +1278,8 @@ function hide_dom0_direct_input_if_void ( e ) {
     var name = elem.attr('name');
     var loading = elem.closest('table.inputitems.newhost').find('span.loading.hypervisor');
     var select = elem.closest('form').find('select[name='+name+']');
+    var result_list = $('div.hidden.resultbox > select');
+
     if ( select ) {
         if ( elem.val().length < 1 ) {
             select.attr('disabled', false);
@@ -1285,10 +1291,13 @@ function hide_dom0_direct_input_if_void ( e ) {
         else {
             elem.hide();
             loading.show();
-            guess_dom0( elem.val(), function( hvlist ){
-                if ( hvlist[0] ) {
+            var select_choosen = result_list.children(':selected');
+            var hostq = select_choosen.size() > 0 ? select_choosen.text().match(/^(.+)\s\|/)[1] : elem.val() ;
+            guess_dom0( hostq, function( hvlist ){
+                if ( hvlist[0] || select.val() ) {
+                    var oid = hvlist[0] ? hvlist[0].host.oid : [];
                     build_dom0_suggestion_select_box( hvlist, select );
-                    select.val( hvlist[0].host.oid );
+                    select.val( oid );
                     select.change();
                 }
                 else {
@@ -1356,7 +1365,6 @@ function suggest_ip ( dom0_ip, exclude, cb ) {
         'ip': dom0_ip,
         'ex[]': exclude,
     };
-    console.log( params );
     $.ajax({
         url: '/ybz/ipaddress/suggest.json',
         data: params,
