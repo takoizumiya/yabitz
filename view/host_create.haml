@@ -55,7 +55,7 @@
                   %td.inputfield.right
                     %span.loading.hypervisor
                       %img{:src => '/images/load_s.gif'}
-                    %input.host_hypervisor{:name => "hypervisor0", :onkeyup => "find_from_suggested_dom0(this);", :onchange => "hide_dom0_direct_input_if_void(this);", :disabled => true}
+                    %input.host_hypervisor{:name => "hypervisor0", :onkeyup => "find_from_suggested(this);", :disabled => true}
                     %select.host_hypervisor{:name => "hypervisor0", :onchange => "select_hypervisor(this);" }
                       %option{:value => ""} （選択なし）
                 %tr

@@ -168,22 +168,20 @@ $(function(){
         var service_select = $('select[name=service]');
         $('select.host_hypervisor').hide();
         $('span.loading.hypervisor').show();
-        fetch_dom0_suggest( service_select.val(), function(hvlist) {
+        get_hypervisors( service_select, function(hvlist) {
+            set_suggests( hvlist );
+            $('select.host_hypervisor').html( $(get_suggests()).slice(0,10) ).prepend(suggest_head()).append(suggest_foot());
             $('span.loading.hypervisor').hide();
-            $('select.host_hypervisor').each(function(i, e){
-                build_dom0_suggestion_select_box( hvlist, e );
-            });
             $('select.host_hypervisor').show();
         }); 
         service_select.change(function(){
-            var service_oid = $(this).val();
+            var elem = $(this);
             $('select.host_hypervisor').hide();
             $('span.loading.hypervisor').show();
-            fetch_dom0_suggest( service_oid, function(hvlist) {
+            get_hypervisors( elem, function(hvlist) {
+                set_suggests( hvlist );
+                $('select.host_hypervisor').html( $(get_suggests()).slice(0,10) ).prepend(suggest_head()).append(suggest_foot());
                 $('span.loading.hypervisor').hide();
-                $('select.host_hypervisor').each(function(i, e){
-                    build_dom0_suggestion_select_box( hvlist, e );
-                });
                 $('select.host_hypervisor').show();
             });
         });
@@ -1153,8 +1151,11 @@ function sortByUrl () {
     }
 }
 
-function select_hypervisor ( e ) {
+function select_hypervisor(e){
     var elem = $(e);
+    var name = elem.attr('name');
+    var input = elem.closest('td').find('input[name='+name+']');
+    var loading = elem.closest('td').find('span.loading');
     var host_box = elem.closest('div.hostadd_item.cloneable');
     var host_num = host_box.find('input.cloneable_number').val();
     var f = function ( field_name ) { 
@@ -1164,7 +1165,11 @@ function select_hypervisor ( e ) {
     var hv = function ( attr_name ) {
         return elem.children(':selected').attr( attr_name );
     }
-    if ( elem.val().length > 0 ) {
+    if ( elem.val() == 'OTHER' ) {
+        elem.hide().attr('disabled',true);
+        input.show().attr('disabled',false);
+    }
+    else if ( elem.val().length > 0 ) {
         f('type').val('Xen(DomU)');
         f('hwinfo').children('option').each(function( i, opt ){
             if ( $(opt).text() == 'xen' ) {
@@ -1184,186 +1189,111 @@ function select_hypervisor ( e ) {
     }
 }
 
-function build_dom0_suggestion_select_box ( hvlist, e ) {
-    var elem = $(e);
-    var name = elem.attr('name');
-    var input = elem.closest('form').find('input[name='+name+']');
-    var hiddenbox = $('div.hidden.suggested_items');
-    input.attr('disabled', true);
-    input.hide();
-    elem.unbind('change');
-    elem.change(function(){ 
-        var excluded_ip = [];
-        $('input').each(function(i, t){
-            var target = $(t);
-            if ( target.attr('name').match(/^localips/) && target.val() ) {
-                excluded_ip.push( target.val() );
-            }
-        })
-        var selected = $(this).children('option:selected');
-        var select = selected.closest('select');
-        if ( select.size() > 0 ) {
-            if ( select.val() != 'OTHER' && select.val() != '' ) {
-                var num = select.attr('name').match(/^hypervisor(\d+)$/)[1];
-                var localip_input = selected.closest('div.hostadd_item.cloneable').find('input[name=localips'+num+']');
-                var loading = localip_input.closest('td').find('span.loading');
-                loading.show();
-                localip_input.attr('disabled', true);
-                suggest_ip( selected.attr('ip'), excluded_ip, function(json){
-                    localip_input.val(json.localip);
-                    loading.hide();
-                    localip_input.attr('disabled', false);
-                });
-            }
-        }
-        show_dom0_direct_input(this, 'OTHER');
-    });
-    elem.hide();
-    elem.html('<option value="">(選択なし)</option>');
-    if ( typeof( hvlist ) != 'undefined' ) {
-        $.each( hvlist, function(i, hv){
-            var host = hv.host;
-            var display_item = [ host.display, host.content.rackunit ];
-            if ( host.content.globalips.length > 0 ) {
-                display_item.push('['+ host.content.globalips.join(',') + ']');
-            }
-            var display = display_item.join(' | ');
-            var opt = $('<option></option>');
-            opt.attr({ 
-                'class': 'hypervisor_item', 
-                'value': host.oid,
-                'cpu': host.content.cpu,
-                'disk': host.content.disk,
-                'hwid': host.content.hwid,
-                'hwinfo': host.content.hwinfo,
-                'memory': host.content.memory,
-                'os': host.content.os,
-                'rackunit': host.content.rackunit,
-                'ip': host.localip
-            });
-            opt.text( display );
-            hiddenbox.append( opt );
-            if ( elem.children('option.hypervisor_item').length < 10 ) {
-                elem.append( opt );
-            }
-        });
-    }
-    elem.append('<option value="OTHER">その他のハイパーバイザ</option>');
-    elem.attr('disabled', false);
-    elem.show();
-}
-
-function fetch_dom0_suggest ( srv_oid, cb ) {
-    var hvlist;
+function get_hypervisors(elem, cb){
+    var srv_id = elem.val();
     $.ajax({
-        url: '/ybz/hosts/suggest/service/'+srv_oid+'.json',
-        success: cb
-    });
-}
-
-function show_dom0_direct_input ( e, expected ) {
-    var elem = $(e);
-    var name = elem.attr('name');
-    var input = elem.closest('form').find('input[name='+name+']');
-    if ( input ) {
-        if ( elem.val() == expected ) {
-            input.attr('disabled', false);
-            input.show();
-            elem.attr('disabled', true);
-            elem.hide();
-        }
-    }
-}
-
-function hide_dom0_direct_input_if_void ( e ) {
-    var elem = $(e);
-    var name = elem.attr('name');
-    var loading = elem.closest('table.inputitems.newhost').find('span.loading.hypervisor');
-    var select = elem.closest('form').find('select[name='+name+']');
-    var result_list = $('div.hidden.resultbox > select');
-
-    if ( select ) {
-        if ( elem.val().length < 1 ) {
-            select.attr('disabled', false);
-            select.val('');
-            select.show();
-            elem.attr('disabled', true);
-            elem.hide();
-        }
-        else {
-            elem.hide();
-            loading.show();
-            var select_choosen = result_list.children(':selected');
-            var hostq = select_choosen.size() > 0 ? select_choosen.text().match(/^(.+)\s\|/)[1] : elem.val() ;
-            guess_dom0( hostq, function( hvlist ){
-                if ( hvlist[0] || select.val() ) {
-                    var oid = hvlist[0] ? hvlist[0].host.oid : [];
-                    build_dom0_suggestion_select_box( hvlist, select );
-                    select.val( oid );
-                    select.change();
+        url: '/ybz/hosts/suggest/service/'+srv_id+'.json',
+        success: function(hvlist){
+            var list = [];
+            $.each(hvlist, function(i,hv){
+                var host = hv.host;
+                var option = $('<option />');
+                option.attr({
+                    'class': 'hypervisor_item',
+                    'value': host.oid,
+                    'cpu': host.content.cpu,
+                    'disk': host.content.disk,
+                    'hwid': host.content.hwid,
+                    'hwinfo': host.content.hwinfo,
+                    'memory': host.content.memory,
+                    'os': host.content.os,
+                    'rackunit': host.content.rackunit,
+                    'ip': host.localip
+                });
+                option.text( host.display+' | '+host.content.rackunit );
+                if ( host.content.globalips.length > 0 ) {
+                    option.text( option.text()+' | ['+host.content.globalips.join(', ')+']' );
                 }
-                else {
-                    elem.show();
-                }
-                loading.hide();
-            })
+                list.push(option);
+            });
+            cb(list);
         }
-    }
+    });
 }
 
-function find_from_suggested_dom0 ( e ) {
-    var elem = $(e);
-    var name = elem.attr('name');
-    var str = elem.val();
-    var hiddenbox = $('div.hidden.suggested_items');
-    var result_list = $('div.hidden.resultbox > select');
-    var result_box = $('div.hidden.resultbox');
-    var dom0_select = elem.closest('form').find('select[name='+name+']');
-    var loading = dom0_select.closest('td').find('span.loading.hypervisor');
-    result_list.unbind();
-    result_list.val('');
-    result_list.change(function(){
-        var selected = result_list.children('option:selected');
-        dom0_select.html('<option value="">(選択なし)</option>');
-        dom0_select.append(selected.clone());
-        dom0_select.append('<option value="OTHER">その他のハイパーバイザ</option>');
-        dom0_select.attr('disabled', false);
-        dom0_select.val(selected.attr('value'));
-        dom0_select.show();
-        dom0_select.change();
-        elem.attr('disabled', true);
-        elem.hide();
-        result_box.hide();
-        loading.hide();
+function set_suggests(hvlist){
+    $.each(hvlist, function(i,hv){
+        $('div.hidden.suggested_items').append(hv);
     });
-    result_list.html('');
-    hiddenbox.children('option').each(function(i, o){
-        var opt = $(o);
-        if ( str.length > 0 && opt.text().match( str ) ) {
-            result_list.append( opt.clone() );
-        }
+}
+
+function get_suggests(){
+    return $('div.hidden.suggested_items').html();
+}
+
+function suggest_head(){
+    return $('<option />').val('').text('(選択なし)');
+}
+
+function suggest_foot(){
+    return $('<option />').val('OTHER').text('その他のハイパーバイザ');
+}
+
+function set_resultbox(hvlist){
+    var resultbox = get_resultbox();
+    var select = resultbox.children('select');
+    select.html('');
+    $.each(hvlist, function(i,hv){
+        select.append(hv);
     });
-    if ( result_list.children('option').size() > 0 ) {
-        var top = parseInt( elem.position().top ) + 24;
-        var left = parseInt( elem.position().left );
-        result_list.attr('size', result_list.children('option').size());
-        result_box.show();
-        result_box.css( { 'top': top + 'px', 'left': left + 'px' } );
+    if ( select.children('option').size() > 0 ) {
+        resultbox.show();
+        select.prepend(suggest_head()).attr('size', select.children('option').size());
     }
     else {
-        result_list.attr('size', 1);
-        result_box.hide();
+        resultbox.hide();
     }
 }
 
-function guess_dom0 ( str, cb ) {
+function get_resultbox(){
+    return $('div.hidden.resultbox');
+}
+
+function find_from_suggested(e){
+    var query = $(e).val();
+    var select = $(e).closest('td').find('select');
+    var select_foot = select.children('option[value=OTHER]');
+    var resultbox = get_resultbox();
+    set_resultbox( 
+        $.grep( $(get_suggests()), function(n, i){
+            return $(n).text().match(query) ? true : false;
+        })
+    );
+    resultbox.css({
+        'top': parseInt($(e).position().top) + 26,
+        'left': parseInt($(e).position().left)
+    }).unbind('change').change(function(){
+        var selected = $(this).find(':selected').clone();
+        var selected_value = selected.attr('value');
+        if ( select.children('option[value='+selected_value+']').size() < 1 ) {
+            select_foot.before( selected );
+        }
+        select.show().attr('disabled',false);
+        resultbox.hide().attr('disabled',true);
+        $(e).hide().attr('disabled',true);
+        select.val(selected_value);
+        select.change();
+    });
+}
+
+function guess_dom0(str, cb){
     $.ajax({
         url: '/ybz/hosts/suggest/guess.json?q='+str,
         success: cb
     });
 }
 
-function suggest_ip ( dom0_ip, exclude, cb ) {
+function suggest_ip(dom0_ip, exclude, cb){
     var params = {
         'ip': dom0_ip,
         'ex[]': exclude,
@@ -1375,15 +1305,3 @@ function suggest_ip ( dom0_ip, exclude, cb ) {
     });
 }
 
-function unique_item ( items ) {
-    var dict = {};
-    var rtn = [];
-    $.each( items, function(i, e){
-        var elem = $(e);
-        dict[elem.val()] = dict[elem.val()] ? dict[elem.val()] : elem;
-    });
-    $.each( dict, function(k, v){
-        rtn.push( v );
-    });
-    return rtn;
-}
