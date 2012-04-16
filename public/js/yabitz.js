@@ -1187,6 +1187,21 @@ function select_hypervisor(e){
             });
         });
     }
+    var selected_hv = elem.children(':selected');
+    if ( selected_hv.size() > 0 ) {
+        if ( selected_hv.attr('ip') ) {
+            var exclude = $.grep( $('input'), function(n, i){
+                return ( $(n).attr('name').match(/^localips\d+$/) && $(n).val().length > 0 );
+            }).map(function(n){return $(n).val()});
+            suggest_ip( selected_hv.attr('ip'), exclude, function(json){
+                $.each( elem.closest('div.hostadd_item.cloneable').find('input'), function(i, n){
+                    if ( $(n).attr('name').match(/^localips\d+$/) ) {
+                        $(n).val(json.localip);
+                    }
+                });
+            })
+        }
+    }
 }
 
 function get_hypervisors(elem, cb){
