@@ -1192,6 +1192,7 @@ function build_dom0_suggestion_select_box ( hvlist, e ) {
     hiddenbox.html('');
     input.attr('disabled', true);
     input.hide();
+    elem.unbind('change');
     elem.change(function(){ 
         var excluded_ip = [];
         $('input').each(function(i, t){
