@@ -120,12 +120,13 @@ module Yabitz
           @segment.include?( ip ) && exclude.select{|ex|ex == ip.to_s}.size() < 1
         }
       end
-      def build_exclude_list(exclude=[])
+      def build_exclude_list(exclude)
+        exclude ||= []
         seg_i = @segment.to_i
         exclude += ((seg_i..seg_i+49)).map{|i|i} + ((seg_i+222..seg_i+255)).map{|i|i}
         return exclude.map{|i|i.is_a?(Integer) ? Yabitz::IPTransform.from_int(i) : i}
       end
-      def suggest(exclude=[])
+      def suggest(exclude)
         return self.free_in_same_segment(self.build_exclude_list(exclude)).sort_by{rand}.shift
       end
     end

@@ -53,7 +53,7 @@
                         %option{:value => h(type)}&= type
                   %th.namefield ハイパーバイザ
                   %td.inputfield.right
-                    %span.loading
+                    %span.loading.hypervisor
                       %img{:src => '/images/load_s.gif'}
                     %input.host_hypervisor{:name => "hypervisor0", :onkeyup => "find_from_suggested_dom0(this);", :onchange => "hide_dom0_direct_input_if_void(this);", :disabled => true}
                     %select.host_hypervisor{:name => "hypervisor0", :onchange => "select_hypervisor(this);" }
@@ -71,6 +71,8 @@
                     %input.simple.blank_onclone{:type => "text", :name => "dnsnames0", :size => 17} 
                   %th.namefield Local IP
                   %td.inputfield.right
+                    %span.loading
+                      %img{:src => '/images/load_s.gif'}
                     %input.simple.blank_onclone{:type => "text", :name => "localips0", :size => 17}
                 %tr
                   %th.namefield HW

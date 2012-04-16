@@ -167,9 +167,9 @@ $(function(){
     if ( $('select.host_hypervisor').size() > 0 ) {
         var service_select = $('select[name=service]');
         $('select.host_hypervisor').hide();
-        $('span.loading').show();
+        $('span.loading.hypervisor').show();
         fetch_dom0_suggest( service_select.val(), function(hvlist) {
-            $('span.loading').hide();
+            $('span.loading.hypervisor').hide();
             $('select.host_hypervisor').each(function(i, e){
                 build_dom0_suggestion_select_box( hvlist, e );
             });
@@ -178,9 +178,9 @@ $(function(){
         service_select.change(function(){
             var service_oid = $(this).val();
             $('select.host_hypervisor').hide();
-            $('span.loading').show();
+            $('span.loading.hypervisor').show();
             fetch_dom0_suggest( service_oid, function(hvlist) {
-                $('span.loading').hide();
+                $('span.loading.hypervisor').hide();
                 $('select.host_hypervisor').each(function(i, e){
                     build_dom0_suggestion_select_box( hvlist, e );
                 });
@@ -1188,11 +1188,30 @@ function build_dom0_suggestion_select_box ( hvlist, e ) {
     var elem = $(e);
     var name = elem.attr('name');
     var input = elem.closest('form').find('input[name='+name+']');
+    var localip_input;
+    elem.closest('div.hostadd_item').find('input').each(function(i, t){
+        if( $(t).attr('name').match(/^localips/) ) {
+            localip_input = $(t);
+        }
+    });
     var hiddenbox = $('div.hidden.suggested_items');
     hiddenbox.html('');
     input.attr('disabled', true);
     input.hide();
-    elem.change(function(){ show_dom0_direct_input(this, 'OTHER') });
+    elem.change(function(){ 
+        var excluded_ip = [];
+        $('input').each(function(i, t){
+            var target = $(t);
+            if ( target.attr('name').match(/^localips/) && target.val() ) {
+                excluded_ip.push( target.val() );
+            }
+        })
+        var selected = $(this).children('option:selected');
+        suggest_ip( selected.attr('ip'), excluded_ip, function(json){
+            localip_input.val(json.localip);
+        });
+        show_dom0_direct_input(this, 'OTHER');
+    });
     elem.hide();
     elem.html('<option value="">(選択なし)</option>');
     if ( typeof( hvlist ) != 'undefined' ) {
@@ -1213,7 +1232,8 @@ function build_dom0_suggestion_select_box ( hvlist, e ) {
                 'hwinfo': host.content.hwinfo,
                 'memory': host.content.memory,
                 'os': host.content.os,
-                'rackunit': host.content.rackunit
+                'rackunit': host.content.rackunit,
+                'ip': host.localip
             });
             opt.text( display );
             hiddenbox.append( opt );
@@ -1252,7 +1272,7 @@ function show_dom0_direct_input ( e, expected ) {
 function hide_dom0_direct_input_if_void ( e ) {
     var elem = $(e);
     var name = elem.attr('name');
-    var loading = elem.closest('table.inputitems.newhost').find('span.loading');
+    var loading = elem.closest('table.inputitems.newhost').find('span.loading.hypervisor');
     var select = elem.closest('form').find('select[name='+name+']');
     if ( select ) {
         if ( elem.val().length < 1 ) {
@@ -1288,7 +1308,7 @@ function find_from_suggested_dom0 ( e ) {
     var result_list = $('div.hidden.resultbox > select');
     var result_box = $('div.hidden.resultbox');
     var dom0_select = elem.closest('form').find('select[name='+name+']');
-    var loading = dom0_select.closest('td').find('span.loading');
+    var loading = dom0_select.closest('td').find('span.loading.hypervisor');
     result_list.unbind();
     result_list.click(function(){
         var selected = result_list.children('option:selected');
@@ -1327,6 +1347,19 @@ function find_from_suggested_dom0 ( e ) {
 function guess_dom0 ( str, cb ) {
     $.ajax({
         url: '/ybz/hosts/suggest/guess.json?q='+str,
+        success: cb
+    });
+}
+
+function suggest_ip ( dom0_ip, exclude, cb ) {
+    var params = {
+        'ip': dom0_ip,
+        'ex[]': exclude,
+    };
+    console.log( params );
+    $.ajax({
+        url: '/ybz/ipaddress/suggest.json',
+        data: params,
         success: cb
     });
 }
