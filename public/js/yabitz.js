@@ -1196,25 +1196,7 @@ function get_hypervisors(elem, cb){
         success: function(hvlist){
             var list = [];
             $.each(hvlist, function(i,hv){
-                var host = hv.host;
-                var option = $('<option />');
-                option.attr({
-                    'class': 'hypervisor_item',
-                    'value': host.oid,
-                    'cpu': host.content.cpu,
-                    'disk': host.content.disk,
-                    'hwid': host.content.hwid,
-                    'hwinfo': host.content.hwinfo,
-                    'memory': host.content.memory,
-                    'os': host.content.os,
-                    'rackunit': host.content.rackunit,
-                    'ip': host.localip
-                });
-                option.text( host.display+' | '+host.content.rackunit );
-                if ( host.content.globalips.length > 0 ) {
-                    option.text( option.text()+' | ['+host.content.globalips.join(', ')+']' );
-                }
-                list.push(option);
+                list.push( hv_to_option( hv ) );
             });
             cb(list);
         }
@@ -1227,6 +1209,28 @@ function set_suggests(hvlist){
     });
 }
 
+function hv_to_option(hv){
+    var host = hv.host;
+    var option = $('<option />');
+    option.attr({
+        'class': 'hypervisor_item',
+        'value': host.oid,
+        'cpu': host.content.cpu,
+        'disk': host.content.disk,
+        'hwid': host.content.hwid,
+        'hwinfo': host.content.hwinfo,
+        'memory': host.content.memory,
+        'os': host.content.os,
+        'rackunit': host.content.rackunit,
+        'ip': host.localip
+    });
+    option.text( host.display+' | '+host.content.rackunit );
+    if ( host.content.globalips.length > 0 ) {
+        option.text( option.text()+' | ['+host.content.globalips.join(', ')+']' );
+    }
+    return option;
+}
+
 function get_suggests(){
     return $('div.hidden.suggested_items').html();
 }
@@ -1235,8 +1239,9 @@ function suggest_head(){
     return $('<option />').val('').text('(選択なし)');
 }
 
-function suggest_foot(){
-    return $('<option />').val('OTHER').text('その他のハイパーバイザ');
+function suggest_foot(label){
+    label = label ? label : 'その他のハイパーバイザ'
+    return $('<option />').val('OTHER').text(label);
 }
 
 function set_resultbox(hvlist){
@@ -1248,7 +1253,7 @@ function set_resultbox(hvlist){
     });
     if ( select.children('option').size() > 0 ) {
         resultbox.show();
-        select.prepend(suggest_head()).attr('size', select.children('option').size());
+        select.prepend(suggest_head()).append(suggest_foot('入力された値で予測')).attr('size', select.children('option').size());
     }
     else {
         resultbox.hide();
@@ -1275,14 +1280,28 @@ function find_from_suggested(e){
     }).unbind('change').change(function(){
         var selected = $(this).find(':selected').clone();
         var selected_value = selected.attr('value');
-        if ( select.children('option[value='+selected_value+']').size() < 1 ) {
-            select_foot.before( selected );
+        if (selected_value == 'OTHER') {
+            guess_dom0(query, function(hvlist){
+                if (typeof(hvlist[0]) != 'undefined') {
+                    if ( select.children('option[value='+hvlist[0].host.oid+']').size() < 1 ) {
+                        select_foot.before( hv_to_option(hvlist[0]) );
+                    }
+                    select.val( hvlist[0].host.oid ).change();
+                    select.show().attr('disabled',false);
+                    resultbox.hide().attr('disabled',true);
+                    $(e).hide().attr('disabled',true);
+                }
+            });
         }
-        select.show().attr('disabled',false);
-        resultbox.hide().attr('disabled',true);
-        $(e).hide().attr('disabled',true);
-        select.val(selected_value);
-        select.change();
+        else {
+            if ( select.children('option[value='+selected_value+']').size() < 1 ) {
+                select_foot.before( selected );
+            }
+            select.val(selected_value).change();
+            select.show().attr('disabled',false);
+            resultbox.hide().attr('disabled',true);
+            $(e).hide().attr('disabled',true);
+        }
     });
 }
 
