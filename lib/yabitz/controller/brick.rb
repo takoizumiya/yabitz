@@ -101,6 +101,14 @@ class Yabitz::Application < Sinatra::Base
       end
     end
     @bricks = Yabitz::Model::Brick.choose(:hwid){|hwid| hwidlist.delete(hwid)}
+    product = request.params['p']
+    if product.nil?
+      @cond = "選択ホストから"
+    else
+      @bricks = @bricks.select{|b| b.productname == product}
+      @cond = "選択ホスト / #{product}"
+    end
+    product_list = @bricks.map(&:productname).uniq.compact
     case ctype
     when '.json'
       response['Content-Type'] = 'application/json'
@@ -112,7 +120,7 @@ class Yabitz::Application < Sinatra::Base
       @bricks.sort!
       @page_title = "機器一覧 (選択ホストから)"
       @default_selected_all = true
-      haml :bricks, :locals => {:cond => "選択ホストから"}
+      haml :bricks, :locals => {:cond => @cond, :products => product_list, :selected => product}
     end
   end
 
