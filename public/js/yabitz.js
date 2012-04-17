@@ -143,7 +143,7 @@ $(function(){
         } );
 
         var hostlist = $('table#hostlist > tbody > tr').get(0);
-        if ($(hostlist).attr('class').match('host_outline') ) {
+        if ($(hostlist).attr('class').match('host_outline') && ! $(hostlist).attr('class').match('unupdatable') ) {
             var sortbar;
             var top_tr = $($('table#hostlist > tbody > tr').get(0));
             top_tr.before('<tr id="voidtarget"></tr>');
