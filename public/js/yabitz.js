@@ -1176,7 +1176,7 @@ function select_hypervisor(e){
                 f( 'hwinfo' ).val( $(opt).attr('value') );
             }
         });
-        $.each( ['rackunit','hwid','cpu','memory','disk'], function( i, k ) {
+        $.each( ['rackunit','hwid'], function( i, k ) {
             f( k ).val( hv( k ) );
         });
         $.each( ['os'], function( i, k ) {
