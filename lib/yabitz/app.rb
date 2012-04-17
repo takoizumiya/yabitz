@@ -27,6 +27,7 @@ require_relative 'misc/search'
 require_relative 'misc/charge'
 require_relative 'misc/checker'
 require_relative 'misc/suggest'
+require_relative 'misc/opetag_hosts'
 
 class Yabitz::Application < Sinatra::Base
   BASIC_AUTH_REALM = "Yabitz Authentication"

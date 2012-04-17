@@ -195,7 +195,8 @@ module Sinatra
                   else
                     "/ybz/smartsearch?keywords=" + CGI.escape(tag)
                   end
-      haml('%a{:href => link_path}&= tagstring', {:layout => false, :locals => {:link_path => link_path, :tagstring => tag}})
+      tagsummary = Yabitz::Opetag.hosts_summary_string(tag)
+      haml :anchored_tag, {:layout => false, :locals => {:link_path => link_path, :tagstring => tag, :tagsummary => tagsummary}}
     end
   end
   helpers LinkGenerator
