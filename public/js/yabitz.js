@@ -58,26 +58,6 @@ $(function(){
     // event for cloneable items add button
     $('div.listclone').click(function(e){clone_cloneable_item(e);});
 
-    // K/B shortcut for cloneable items on /ybz/host/create
-    if ( $('div.listclone').size() > 0 && $('div.listclone').closest('div.hostadd_item').size() > 0 ) {
-        $('div.listclone').click(function(){ $('span.hostadd_item_count').text( $('div.hostadd_item.cloneable').size() ) });
-        var kb_shortcut = 1;
-        $('input,select').focus(function(){
-            kb_shortcut -= 1;
-        });
-        $('input,select').blur(function(){
-            kb_shortcut += 1;
-        });
-        $(document).keypress(function(event){
-            if (kb_shortcut > 0) {
-                // press 'a' key to append additional host input
-                if ( event.which == 97 ) {
-                    $($('div.listclone').get(0)).click();
-                }
-            }
-        })
-    }
-
     // events for entry-creation (host, contactmember, contact)
     $('form.mainform').submit(function(e){commit_main_form(e);});
     $('button.mainform_commit').click(function(e){$(e.target).closest('form.mainform').submit();});
@@ -1339,3 +1319,6 @@ function suggest_ip(dom0_ip, exclude, cb){
     });
 }
 
+function item_clone_kb_shortcut(){
+    $($('div.listclone').get(0)).click();
+}
