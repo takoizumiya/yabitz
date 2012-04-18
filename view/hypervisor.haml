@@ -1,6 +1,6 @@
 -# coding: utf-8
 
-%tr.host_outline.selectable.hypervisor{:id => "#{hypervisor.host.oid}", :title => h(hypervisor.host.display_name)}
+%tr.host_outline.selectable.hypervisor{:id => hypervisor.host.oid, :title => h(hypervisor.host.display_name)}
   %td.host_status_in_service
     %div{:style => "padding-top: 3em;"}
   %td.host_displayname.resources
@@ -16,7 +16,7 @@
           %li= ips[1]
   %td.td_padding.host_cpu.resources
     - cpu_unassigned = hypervisor.cpu_unassigned > 1 ? hypervisor.cpu_unassigned : 0
-    #{cpu_unassigned}cores
+    &= cpu_unassigned.to_s + "cores"
   %td.td_padding.host_memory.resources
     - memory_unassigned = hypervisor.memory_unassigned > 1 ? hypervisor.memory_unassigned : 0
     - if memory_unassigned >= 1024
@@ -24,7 +24,7 @@
       - memory_unassigned = memory_unassigned.to_s + 'GB'
     - else
       - memory_unassigned = memory_unassigned.to_s + 'MB'
-    #{memory_unassigned}
+    &= memory_unassigned
   %td.td_padding.host_disk.resources
     - disk_unassigned = hypervisor.disk_unassigned > 1 ? hypervisor.disk_unassigned : 0
     - if disk_unassigned >= 1024
@@ -32,7 +32,7 @@
       - disk_unassigned = disk_unassigned.to_s + 'TB'
     - else
       - disk_unassigned = disk_unassigned.to_s + 'GB'
-    #{disk_unassigned}
+    &= disk_unassigned
   %td.host_service
     &= hypervisor.host.service.to_s
   %td.td_padding_narrow
