@@ -74,9 +74,9 @@
       %div{:style => "margin-bottom:8px;"}
         %select{:name => "status" }
           %option{:value => 'ALL'} 全て
-          - for stat in Yabitz::Model::Host::STATUS_LIST
+          - Yabitz::Model::Host::STATUS_LIST.each do |stat|
             - selected = stat == cond_status ? true : false
-            %option{:value => stat, :selected => selected} #{Yabitz::Model::Host.status_title(stat)}
+            %option{:value => stat, :selected => selected}&= Yabitz::Model::Host.status_title(stat)
       %h4 検索除外対象
       %div
         除外対象選択

@@ -1,7 +1,7 @@
 -# coding: utf-8
 - @service_unselectable ||= false
-- selectable_class = @service_unselectable ? 'unselectable' : 'selectable'
-%tr{:class => "service_item #{selectable_class}", :id => service.oid, :title => h(service.name)}
+- selectable_class = @service_unselectable ? 'service_item unselectable' : 'service_item selectable'
+%tr{:class => selectable_class, :id => service.oid, :title => h(service.name)}
   - case service.content.charging
   - when Yabitz::Model::Content::CHARGING_NO_COUNT
     %td.charging_no_count
