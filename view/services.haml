@@ -4,7 +4,7 @@
 %div#toolbox_spacer_top
 %div#toolbox
   %div&= "表示：" + @page_title
-  -if enable_grep_form
+  - if enable_grep_form
     - if in_detail.keys.size > 0
       - grepsimple_style = 'display: none;'
       - grepdetail_style = 'display: block;'
@@ -20,59 +20,57 @@
       %form#grepdetail{:name => "grepdetail", :action => '/ybz/service/search', :method => 'GET', :style => grepdetail_style}
         %div#grepdisp
           %span 絞り込み条件
-          -if in_q
-            -if in_q.length > 0
+          - if in_q and in_q.length > 0
+            %dl.grepstat
+              %dt.grepkey キーワード
+              %dd.grepval&= in_q
+          - Yabitz::ServiceSearch::SEARCH_KEY_LIST.each do |key|
+            - if in_detail[key] and in_detail[key].length > 0
               %dl.grepstat
-                %dt.grepkey キーワード
-                %dd.grepval #{in_q}
-          -for key in Yabitz::ServiceSearch::SEARCH_KEY_LIST
-            -if in_detail[key]
-              -if in_detail[key].length > 0
-                %dl.grepstat
-                  %dt.grepkey #{Yabitz::ServiceSearch.searchkey_title(key)}
-                  -if key == 'charging'
-                    %dd.grepval #{Yabitz::Model::Content.charging_title(in_detail[key])} 
-                  -else
-                    %dd.grepval #{in_detail[key]} 
+                %dt.grepkey&= Yabitz::ServiceSearch.searchkey_title(key)
+                - if key == 'charging'
+                  %dd.grepval&= Yabitz::Model::Content.charging_title(in_detail[key])
+                - else
+                  %dd.grepval&= in_detail[key]
         %p{:style => 'clear: both;'}
         %table#greptable
           %tr
-            %th #{Yabitz::ServiceSearch.searchkey_title('name')}
+            %th&= Yabitz::ServiceSearch.searchkey_title('name')
             %td
               %input{:type => 'text', :name => 'name', :value => in_detail['name'] || '' } 
-            %th #{Yabitz::ServiceSearch.searchkey_title('content')}
+            %th&= Yabitz::ServiceSearch.searchkey_title('content')
             %td
               %input{:type => 'text', :name => 'content', :value => in_detail['content'] || ''}
           %tr
-            %th #{Yabitz::ServiceSearch.searchkey_title('contact')}
+            %th&= Yabitz::ServiceSearch.searchkey_title('contact')
             %td
               %input{:type => 'text', :name => 'contact', :value => in_detail['contact'] || ''}
-            %th #{Yabitz::ServiceSearch.searchkey_title('mladdress')}
+            %th&= Yabitz::ServiceSearch.searchkey_title('mladdress')
             %td
               %input{:type => 'text', :name => 'mladdress', :value => in_detail['mladdress'] || ''}
           %tr
-            %th #{Yabitz::ServiceSearch.searchkey_title('urls')}
+            %th&= Yabitz::ServiceSearch.searchkey_title('urls')
             %td
               %input{:type => 'text', :name => 'urls', :value => in_detail['urls'] || ''}
-            %th #{Yabitz::ServiceSearch.searchkey_title('notes')}
+            %th&= Yabitz::ServiceSearch.searchkey_title('notes')
             %td
               %input{:type => 'text', :name => 'notes', :value => in_detail['notes'] || ''}
           %tr
-            %th #{Yabitz::ServiceSearch.searchkey_title('charging')}
+            %th&= Yabitz::ServiceSearch.searchkey_title('charging')
             %td
               %select{:name => 'charging'}
                 %option{:value => ''} 全て
-                - for stat in Yabitz::Model::Content::CHARGING_LABELS
-                  - if defined? in_detail['charging'] 
-                    - selected = stat == in_detail['charging'] ? true : false
+                - Yabitz::Model::Content::CHARGING_LABELS.each do |stat|
+                  - if in_detail['charging'] 
+                    - selected = (stat == in_detail['charging'])
                   - else 
                     - selected = false
-                  %option{:value => stat, :selected => selected} #{Yabitz::Model::Content.charging_title(stat)}
-            %th #{Yabitz::ServiceSearch.searchkey_title('hypervisors')}
+                  %option{:value => stat, :selected => selected}&= Yabitz::Model::Content.charging_title(stat)
+            %th&= Yabitz::ServiceSearch.searchkey_title('hypervisors')
             %td
               %select{:name => 'hypervisors'}
                 %option{:value => ''} 全て
-                - if defined? in_detail['hypervisors']
+                - if in_detail['hypervisors']
                   %option{:value => 'true', :selected => (in_detail['hypervisors'] == 'true')} TRUE
                   %option{:value => 'false', :selected => (in_detail['hypervisors'] == 'false')} FALSE
                 - else
