@@ -4,7 +4,16 @@
 %div#toolbox
   %p
     表示：
-    &= @page_title
+    &= cond
+  %div
+    ホストのステータス:
+    %select#hardwares_host_selection_list
+      %option{:selected => (selected.nil? or selected == 'all'), :value => 'all'} すべて
+      %option{:selected => (selected == 'remaining'), :value => 'remaining'} 未撤去すべて
+      %option{:selected => (selected == 'tobe_remain'), :value => 'tobe_remain'} 撤去済・撤去依頼済以外すべて
+      - Yabitz::Model::Host::STATUS_LIST.each do |status|
+        - s = status.downcase
+        %option{:selected => (selected == s), :value => s}&= Yabitz::Model::Host.status_title(status)
 %div#toolbox_spacer_bottom
 %div#maincontents
   %table#machinesummary
@@ -30,7 +39,7 @@
         %td.td_line_head
           %div{:style => "padding-top: 3em; padding-left: 0; padding-right: 0;"}
         %td.machine_name&= hwinfo.name
-        - hosts = hwinfo.count_hosts
+        - hosts = hwinfo.count_hosts(*status_list)
         %td.td_padding
           %img{:src => "/images/1x1.gif"}
         %td.machine_size&= hwinfo.units
@@ -53,7 +62,7 @@
       %td.machine_size -
       %td.td_padding
         %img{:src => "/images/1x1.gif"}
-      %td.machine_hosts&= Yabitz::Model::HwInformation.count_hosts_without_hwinfo
+      %td.machine_hosts&= Yabitz::Model::HwInformation.count_hosts_without_hwinfo(*status_list)
       %td.td_padding
         %img{:src => "/images/1x1.gif"}
       %td.machine_units -

@@ -25,9 +25,12 @@ $(function(){
     $('button#selected_bricks').click(function(e){show_selected_bricks(e);});
     $('button#bricks_history').click(function(e){show_bricks_history(e);});
     $('select#brick_selection_list').change(function(e){show_more_selected_bricks(e);});
+    $('select#hardwares_host_selection_list').change(function(e){show_hardwares_selected_hosts(e);});
+
     $('div#copypasterlinks').find('.copypaster').click(function(e){
         copypastable_all_hosts($(e.target), window.location.href);
     });
+
 
     // events for main table items
     $('.host_outline.selectable').click(function(e){toggle_item_selection(e, 'host');});
@@ -347,6 +350,18 @@ function show_more_selected_bricks(event){
         return;
     }
     uri = window.location.origin + window.location.pathname + '?p=' + product;
+    window.location.href = uri;
+};
+
+function show_hardwares_selected_hosts(event){
+    var status = $(event.target).val();
+    var uri;
+    if (status === '') {
+        uri = window.location.origin + window.location.pathname;
+        window.location.href = uri;
+        return;
+    }
+    uri = window.location.origin + window.location.pathname + '?s=' + status;
     window.location.href = uri;
 };
 
