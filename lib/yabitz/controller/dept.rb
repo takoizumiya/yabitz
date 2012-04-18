@@ -68,4 +68,46 @@ class Yabitz::Application < Sinatra::Base
   end
   # delete '/ybz/dept/:oid' #TODO
 
+  post '/ybz/dept/alter-prepare/:ope/:oid' do
+    admin_protected!
+    oid = params[:oid].to_i
+    dept = Yabitz::Model::Dept.get(oid)
+    unless dept
+      halt HTTP_STATUS_CONFLICT, "指定された対象が見付かりません<br />ページを更新してやりなおしてください"
+    end
+
+    case params[:ope]
+    when 'delete_records'
+      if Yabitz::Model::Content.query(:dept => dept, :count => true) > 0
+        halt HTTP_STATUS_NOT_ACCEPTABLE, "指定された対象に所属しているコンテンツがあるため削除できません"
+      end
+      "#{dept.name} のデータを削除して本当にいいですか？"
+    else
+      pass
+    end
+  end
+
+  post '/ybz/dept/alter-execute/:ope/:oid' do
+    admin_protected!
+    oid = params[:oid].to_i
+    dept = Yabitz::Model::Dept.get(oid)
+    unless dept
+      halt HTTP_STATUS_CONFLICT, "指定された対象が見付かりません<br />ページを更新してやりなおしてください"
+    end
+
+    case params[:ope]
+    when 'delete_records'
+      deptname = dept.name
+      Stratum.transaction do |conn|
+        if Yabitz::Model::Content.query(:dept => dept, :count => true) > 0
+          halt HTTP_STATUS_NOT_ACCEPTABLE, "指定された対象に所属しているコンテンツがあるため削除できません"
+        end
+
+        dept.remove()
+      end
+      "完了： #{deptname} の削除"
+    else
+      pass
+    end
+  end
 end

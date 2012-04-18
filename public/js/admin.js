@@ -37,6 +37,19 @@ function dispatch_admin_operation(event) {
         case 'delete_records': dialogtype = 'confirm_dialog'; break;
         };
     }
+    else if (target.attr('id') == 'content_operation_list') {
+        modeltype = 'content';
+        switch (target.val()) {
+        case 'change_dept': dialogtype = 'form_dialog'; break;
+        case 'delete_records': dialogtype = 'confirm_dialog'; break;
+        };
+    }
+    else if (target.attr('id') == 'dept_operation_list') {
+        modeltype = 'content';
+        switch (target.val()) {
+        case 'delete_records': dialogtype = 'confirm_dialog'; break;
+        };
+    }
     else if (target.attr('id') == 'contactmember_operation_list') {
         modeltype = 'contactmember';
         switch (target.val()) {

@@ -69,4 +69,65 @@ class Yabitz::Application < Sinatra::Base
   end
   # delete '/ybz/content/:oid' #TODO
   
+  post '/ybz/content/alter-prepare/:ope/:oid' do
+    admin_protected!
+    oid = params[:oid].to_i
+    content = Yabitz::Model::Content.get(oid)
+    unless content
+      halt HTTP_STATUS_CONFLICT, "指定されたコンテンツが見付かりません<br />ページを更新してやりなおしてください"
+    end
+
+    case params[:ope]
+    when 'change_dept'
+      dept_select_tag_template = <<EOT
+%div 変更先を選択してください
+%div
+  %select{:name => "dept"}
+    - Yabitz::Model::Dept.all.sort.each do |dept|
+      %option{:value => dept.oid}&= dept.to_s
+EOT
+      haml dept_select_tag_template, :layout => false
+    when 'delete_records'
+      if Yabitz::Model::Service.query(:content => content, :count => true) > 0
+        halt HTTP_STATUS_NOT_ACCEPTABLE, "該当コンテンツに所属しているサービスがあるため削除できません"
+      end
+      "選択されたコンテンツ #{content.name} のデータを削除して本当にいいですか？"
+    else
+      pass
+    end
+  end
+
+  post '/ybz/content/alter-execute/:ope/:oid' do
+    admin_protected!
+    oid = params[:oid].to_i
+    content = Yabitz::Model::Content.get(oid)
+    unless content
+      halt HTTP_STATUS_CONFLICT, "指定されたコンテンツが見付かりません<br />ページを更新してやりなおしてください"
+    end
+
+    case params[:ope]
+    when 'change_dept'
+      dept = Yabitz::Model::Dept.get(params[:dept].to_i)
+      halt HTTP_STATUS_CONFLICT, "指定された対象が見付かりませんでした" unless dept
+
+      content.dept = dept
+      content.save
+      "完了： コンテンツ #{content.name} の #{dept.to_s} への変更"
+    when 'delete_records'
+      contentname = content.name
+      Stratum.transaction do |conn|
+        if Yabitz::Model::Service.query(:content => content, :count => true) > 0
+          halt HTTP_STATUS_NOT_ACCEPTABLE, "該当コンテンツに所属しているサービスがあるため削除できません"
+        end
+
+        content.services = []
+        content.save()
+
+        content.remove()
+      end
+      "完了： コンテンツ #{contentname} の削除"
+    else
+      pass
+    end
+  end
 end

@@ -3,6 +3,15 @@
 %div#toolbox_spacer_top
 %div#toolbox
   %p 表示： コンテンツ一覧
+  - if @isadmin
+    %div
+      選択したコンテンツへの操作:
+      %select.admin_operations#content_operation_list
+        %option{:value => 'nonedefault'} 操作を選択してください
+        %option{:value => 'none', :disabled => true} -- 変更 --
+        %option{:value => 'change_dept'} 選択したコンテンツの所属を変更
+        %option{:value => 'none', :disabled => true} -- データ削除 --
+        %option{:value => 'delete_records'} 選択したコンテンツのデータを消去
 %div#toolbox_spacer_bottom
 %div#maincontents
   - if @isadmin
