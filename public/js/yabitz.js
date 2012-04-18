@@ -167,6 +167,15 @@ $(function(){
         });
     }
 
+    // K/B shortcut 
+    if ( $('div.listclone').size() > 0 && $('div.listclone').closest('div.hostadd_item').size() > 0 ) {
+        $('body').keydown(function(event){
+            if (event.altKey === true && event.which === 65 ) {
+                item_clone_kb_shortcut();
+            }
+        });
+    }
+
 });
 
 $.fn.hoverClass = function(c) {
