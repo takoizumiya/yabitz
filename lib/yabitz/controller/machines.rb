@@ -30,7 +30,7 @@ class Yabitz::Application < Sinatra::Base
   get %r!/ybz/machines/hardware(\.tsv)?! do |ctype|
     authorized?
     @hws = Yabitz::Model::HwInformation.all.sort
-    target_status = (request.params['s'] || 'all')
+    target_status = (request.params['s'] || 'in_service')
     status_labels, status_cond = case target_status
                                  when 'all' then [[], "全て"]
                                  when 'remaining' then [COUNT_REMAINING, "未撤去すべて"]
