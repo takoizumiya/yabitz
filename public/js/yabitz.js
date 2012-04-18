@@ -1321,4 +1321,5 @@ function suggest_ip(dom0_ip, exclude, cb){
 
 function item_clone_kb_shortcut(){
     $($('div.listclone').get(0)).click();
+    $('span.hostadd_item_count').text($('div.listclone').size());
 }
