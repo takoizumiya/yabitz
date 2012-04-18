@@ -61,7 +61,7 @@
               %select{:name => 'charging'}
                 %option{:value => ''} 全て
                 - Yabitz::Model::Content::CHARGING_LABELS.each do |stat|
-                  - if in_detail['charging'] 
+                  - if in_detail['charging']
                     - selected = (stat == in_detail['charging'])
                   - else 
                     - selected = false
