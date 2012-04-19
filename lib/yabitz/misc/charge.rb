@@ -25,9 +25,13 @@ module Yabitz
 
       type_perspective = {}
       Yabitz::HostType.names.each do |type|
-        type_perspective[type] = SummaryInitializer.call
+        type_perspective[type] = {}
+        type_perspective[type][:in_service] = SummaryInitializer.call
+        type_perspective[type][:all] = SummaryInitializer.call
       end
-      type_perspective[:total] = SummaryInitializer.call
+      type_perspective[:total] = {}
+      type_perspective[:total][:in_service] = SummaryInitializer.call
+      type_perspective[:total][:all] = SummaryInitializer.call
 
       charging_perspective = {}
       Yabitz::Model::Content::CHARGING_LABELS.each do |label|
@@ -100,10 +104,13 @@ module Yabitz
         status[host.status][:hosts] += 1
         status[:total][:hosts] += 1
 
-        types[host.type][:hosts] += 1
-        types[:total][:hosts] += 1
+        types[host.type][:all][:hosts] += 1
+        types[:total][:all][:hosts] += 1
 
         next unless host.status == Yabitz::Model::Host::STATUS_IN_SERVICE
+
+        types[host.type][:in_service][:hosts] += 1
+        types[:total][:in_service][:hosts] += 1
 
         h,p,c = self.count_elements(host)
 

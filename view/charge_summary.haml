@@ -32,7 +32,8 @@
     %th{:style => 'border-left: 1px solid;'}
       %img{:src => "/images/1x1.gif"}
     %th ホスト種類別
-    %th ホスト数
+    %th ホスト数(稼働中)
+    %th ホスト数(全体)
     %th{:style => 'border-right: 1px solid;'}
       %img{:src => "/images/1x1.gif"}
   - Yabitz::HostType.names.each do |type|
@@ -40,14 +41,16 @@
       %td.td_line_head
         %img{:src => "/images/1x1.gif"}
       %td.charge_host_type&= type
-      %td.charge_hosts{:style => "text-align: center;"}&= @types[type][:hosts]
+      %td.charge_hosts{:style => "text-align: center;"}&= @types[type][:in_service][:hosts]
+      %td.charge_hosts{:style => "text-align: center;"}&= @types[type][:all][:hosts]
       %td.td_line_term
         %img{:src => "/images/1x1.gif"}
   %tr
     %td.td_line_head
       %img{:src => "/images/1x1.gif"}
     %td.charge_host_status 合計
-    %td.charge_hosts{:style => "text-align: center;"}&= @types[:total][:hosts]
+    %td.charge_hosts{:style => "text-align: center;"}&= @types[:total][:in_service][:hosts]
+    %td.charge_hosts{:style => "text-align: center;"}&= @types[:total][:all][:hosts]
     %td.td_line_term
       %img{:src => "/images/1x1.gif"}
 %table.maintable
