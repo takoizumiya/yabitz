@@ -45,7 +45,7 @@ function dispatch_admin_operation(event) {
         };
     }
     else if (target.attr('id') == 'dept_operation_list') {
-        modeltype = 'content';
+        modeltype = 'dept';
         switch (target.val()) {
         case 'delete_records': dialogtype = 'confirm_dialog'; break;
         };
