@@ -26,6 +26,7 @@ $(function(){
     $('button#bricks_history').click(function(e){show_bricks_history(e);});
     $('select#brick_selection_list').change(function(e){show_more_selected_bricks(e);});
     $('select#hardwares_host_selection_list').change(function(e){show_hardwares_selected_hosts(e);});
+    $('select#os_host_selection_list').change(function(e){show_os_selected_hosts(e);});
 
     $('div#copypasterlinks').find('.copypaster').click(function(e){
         copypastable_all_hosts($(e.target), window.location.href);
@@ -354,6 +355,18 @@ function show_more_selected_bricks(event){
 };
 
 function show_hardwares_selected_hosts(event){
+    var status = $(event.target).val();
+    var uri;
+    if (status === '') {
+        uri = window.location.origin + window.location.pathname;
+        window.location.href = uri;
+        return;
+    }
+    uri = window.location.origin + window.location.pathname + '?s=' + status;
+    window.location.href = uri;
+};
+
+function show_os_selected_hosts(event){
     var status = $(event.target).val();
     var uri;
     if (status === '') {

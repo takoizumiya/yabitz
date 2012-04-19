@@ -6,8 +6,9 @@
   %div.fieldvalue{:style => "margin-bottom: 0.5em;"}
   - @all_services.sort.each do |service|
     - if @service_count_map[service.oid]
+      - c = @service_count_map[service.oid]
       %div.fieldvalue
         %span.field
           %a{:href => "/ybz/hosts/service/#{service.oid}"}&= service.name
-        %span.value&= @service_count_map[service.oid]
+        %span.value&= "#{cond} #{c[:target]} / 全体 #{c[:all]}"
 
