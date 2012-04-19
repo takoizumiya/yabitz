@@ -68,36 +68,19 @@ module Yabitz
         end
       end
 
-#       def self.count_hosts_without_hwinfo
-#         Stratum.conn do |c|
-#           sql = <<"EOQ"
-# SELECT count(*) FROM hosts WHERE hwinfo IS NULL AND head='#{Stratum::Model::BOOL_TRUE}' AND removed='#{Stratum::Model::BOOL_FALSE}'
-# EOQ
-#           return c.query(sql).first['count(*)']
-#         end
-#       end
       def self.count_hosts_without_hwinfo(*status_list)
         if status_list.size < 1
           Yabitz::Model::Host.query(:hwinfo => nil, :count => true)
         else
-          status_list.inject(0){|a,s| 0 + Yabitz::Model::Host.query(:hwinfo => nil, :status => s, :count => true)}
+          status_list.inject(0){|a,s| a + Yabitz::Model::Host.query(:hwinfo => nil, :status => s, :count => true)}
         end
       end
-
-#       def count_hosts
-#         Stratum.conn do |c|
-#           sql = <<"EOQ"
-# SELECT count(*) FROM hosts WHERE hwinfo=#{self.oid} AND head='#{Stratum::Model::BOOL_TRUE}' AND removed='#{Stratum::Model::BOOL_FALSE}'
-# EOQ
-#           return c.query(sql).first['count(*)']
-#         end
-#       end
 
       def count_hosts(*status_list)
         if status_list.size < 1
           Yabitz::Model::Host.query(:hwinfo => self, :count => true)
         else
-          status_list.inject(0){|a,s| 0 + Yabitz::Model::Host.query(:hwinfo => self, :status => s, :count => true)}
+          status_list.inject(0){|a,s| a + Yabitz::Model::Host.query(:hwinfo => self, :status => s, :count => true)}
         end
       end
     end
@@ -132,12 +115,19 @@ module Yabitz
         return oslist
       end
 
-      def self.count_hosts_without_os
-        sql = <<EOQ
-SELECT count(*) FROM hosts WHERE (os='' or os IS NULL) AND head='#{Stratum::Model::BOOL_TRUE}' AND removed='#{Stratum::Model::BOOL_FALSE}'
-EOQ
-        Stratum.conn do |c|
-          return c.query(sql).first['count(*)']
+#       def self.count_hosts_without_os
+#         sql = <<EOQ
+# SELECT count(*) FROM hosts WHERE (os='' or os IS NULL) AND head='#{Stratum::Model::BOOL_TRUE}' AND removed='#{Stratum::Model::BOOL_FALSE}'
+# EOQ
+#         Stratum.conn do |c|
+#           return c.query(sql).first['count(*)']
+#         end
+#       end
+      def self.count_hosts_without_os(*status_list)
+        if status_list.size < 1
+          Yabitz::Model::Host.query(:os => nil, :count => true)
+        else
+          status_list.inject(0){|a,s| a + Yabitz::Model::Host.query(:os => nil, :status => s, :count => true)}
         end
       end
 
@@ -151,7 +141,7 @@ EOQ
         if status_list.size < 1
           Yabitz::Model::Host.query(:os => name, :count => true)
         else
-          status_list.inject(0){|a,s| 0 + Yabitz::Model::Host.query(:os => name, :status => s, :count => true)}
+          status_list.inject(0){|a,s| a + Yabitz::Model::Host.query(:os => name, :status => s, :count => true)}
         end
       end
     end
