@@ -28,6 +28,14 @@ require_relative 'misc/charge'
 require_relative 'misc/checker'
 require_relative 'misc/suggest'
 
+## hack to switch layout.haml
+module Sinatra::Templates
+  def hamlx(template, options={}, locals={})
+    render :haml, template, options.merge({:layout => :newlayout}), locals
+  end
+end
+###
+
 class Yabitz::Application < Sinatra::Base
   BASIC_AUTH_REALM = "Yabitz Authentication"
   
