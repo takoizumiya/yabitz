@@ -31,7 +31,11 @@ require_relative 'misc/suggest'
 ## hack to switch layout.haml
 module Sinatra::Templates
   def hamlx(template, options={}, locals={})
-    render :haml, template, options.merge({:layout => :newlayout}), locals
+    unless options.has_key?(:layout)
+      render :haml, template, options.merge({:layout => :newlayout}), locals
+    else
+      render :haml, template, options, locals
+    end
   end
 end
 ###
