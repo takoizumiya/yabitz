@@ -105,11 +105,11 @@
               %li
                 %a{:href => "/ybz/auth_info/list"} ユーザリスト
           %li
-            %form.form-search{:action => "/ybz/smartsearch", :method => "get", :style => "margin:10px 0 0 0"}
+            %form.form-search{:action => "/ybz/smartsearch", :method => "get", :style => "margin:6px 0 0 0"}
               %input.input-small.search-query{:type => "text", :name => "keywords", :value => ""}
               %button.btn.btn-mini{:type => "submit", :style => "display:none"} Search
           %li
             %a{:href => "/ybz/search"} 詳細検索
-    %div{:style => "float: right; clear: right; padding-top: 7px;"}
-      - t_now = Time.now
-      %span#datetime #{t_now.year}年#{t_now.mon}月#{t_now.day}日 #{sprintf("%02d",t_now.hour)}:#{sprintf("%02d",t_now.min)}
+%div.container
+  - t_now = Time.now
+  %span.pull-right #{t_now.year}年#{t_now.mon}月#{t_now.day}日 #{sprintf("%02d",t_now.hour)}:#{sprintf("%02d",t_now.min)}

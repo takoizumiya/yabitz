@@ -29,78 +29,46 @@
             %div{:style => "padding: 0.5em 1em 0.5em 1em;"} ホスト・機器検索(HWID/シリアル)
   %div#toolbox_spacer_bottom
 - else
-  %div#toolbox_spacer_top
-  %div#toolbox
-    %div{:style => "float: right;"}
+  %div.container
+    %div.pull-right
       %a{:href => "/ybz/top_toggle"} 表示切替
     %h3 Yabitz
     %div{:style => "padding: 1em;"}
-      %form.mainform{:name => "host_search_dns", :action => "/ybz/search", :method => "GET"}
+      %form.form-inline{:name => "host_search_dns", :action => "/ybz/search", :method => "GET"}
         %input{:type => "hidden", :name => "andor", :value => 'OR'}
         %input{:type => "hidden", :name => "cond0", :value => 0}
         %input{:type => "hidden", :name => "field0", :value => "dnsname"}
-        %table.inputitems
-          %tr
-            %td.inputfield{:style => "font-size: 150%; text-align: left; width: 60%;"}
-              %input.simple{:type => "text", :name => "value0", :size => 30}
-            %td.namefield
-              %button.host_search_dns
-                %div{:style => "width: 10em;"} dns名検索
+        %input{:type => "text", :name => "value0", :size => 30}
+        %button.btn dns名検索
       %br
-      %form.mainform{:name => "host_search_ip", :action => "/ybz/search", :method => "GET"}
+      %form.form-inline{:name => "host_search_ip", :action => "/ybz/search", :method => "GET"}
         %input{:type => "hidden", :name => "andor", :value => 'OR'}
         %input{:type => "hidden", :name => "cond0", :value => 0}
         %input{:type => "hidden", :name => "field0", :value => "ipaddress"}
-        %table.inputitems
-          %tr
-            %td.inputfield{:style => "font-size: 150%; text-align: left; width: 60%;"}
-              %input.simple{:type => "text", :name => "value0", :size => 30}
-            %td.namefield
-              %button.host_search_ip
-                %div{:style => "width: 10em;"} IPアドレス検索
+        %input{:type => "text", :name => "value0", :size => 30}
+        %button.btn IPアドレス検索
       %br
-      %form.mainform{:name => "host_search_service", :action => "/ybz/search", :method => "GET"}
+      %form.form-inline{:name => "host_search_service", :action => "/ybz/search", :method => "GET"}
         %input{:type => "hidden", :name => "andor", :value => 'OR'}
         %input{:type => "hidden", :name => "cond0", :value => 0}
         %input{:type => "hidden", :name => "field0", :value => "service"}
-        %table.inputitems
-          %tr
-            %td.inputfield{:style => "font-size: 150%; text-align: left; width: 60%;"}
-              %input.simple{:type => "text", :name => "value0", :size => 30}
-            %td.namefield
-              %button.host_search_service
-                %div{:style => "width: 10em;"} サービス名検索
+        %input{:type => "text", :name => "value0", :size => 30}
+        %button.btn サービス名検索
       %br
-      %form.mainform{:name => "host_search_rackunit", :action => "/ybz/search", :method => "GET"}
+      %form.form-inline{:name => "host_search_rackunit", :action => "/ybz/search", :method => "GET"}
         %input{:type => "hidden", :name => "andor", :value => 'OR'}
         %input{:type => "hidden", :name => "cond0", :value => 0}
         %input{:type => "hidden", :name => "field0", :value => "rackunit"}
-        %table.inputitems
-          %tr
-            %td.inputfield{:style => "font-size: 150%; text-align: left; width: 60%;"}
-              %input.simple{:type => "text", :name => "value0", :size => 30}
-            %td.namefield
-              %button.host_search_rack
-                %div{:style => "width: 10em;"} ラック位置検索
+        %input{:type => "text", :name => "value0", :size => 30}
+        %button.btn ラック位置検索
       %br
-      %form.mainform{:name => "host_search_hwid", :action => "/ybz/search", :method => "GET"}
+      %form.form-inline{:name => "host_search_hwid", :action => "/ybz/search", :method => "GET"}
         %input{:type => "hidden", :name => "andor", :value => 'OR'}
         %input{:type => "hidden", :name => "cond0", :value => 0}
         %input{:type => "hidden", :name => "field0", :value => "hwid"}
-        %table.inputitems
-          %tr
-            %td.inputfield{:style => "font-size: 150%; text-align: left; width: 60%;"}
-              %input.simple{:type => "text", :name => "value0", :size => 30}
-            %td.namefield
-              %button.host_search_hwid
-                %div{:style => "width: 10em;"} HWID検索
+        %input{:type => "text", :name => "value0", :size => 30}
+        %button.btn HWID検索
       %br
-      %form.mainform{:name => "smart_search", :action => "/ybz/smartsearch", :method => "GET"}
-        %table.inputitems
-          %tr
-            %td.inputfield{:style => "font-size: 150%; text-align: left; width: 60%;"}
-              %input.simple{:type => "text", :name => "keywords", :size => 30}
-            %td.namefield
-              %button.smart_search
-                %div{:style => "width: 10em;"} 機器・ホスト検索(HWID/シリアル)
-  %div#toolbox_spacer_bottom
+      %form.form-inline{:name => "smart_search", :action => "/ybz/smartsearch", :method => "GET"}
+        %input{:type => "text", :name => "keywords", :size => 30}
+        %button.btn 機器・ホスト検索

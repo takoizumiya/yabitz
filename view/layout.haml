@@ -1,5 +1,5 @@
 -# coding: utf-8
-
+!!!
 %html
   - @user ||= nil
   - @isadmin ||= false
@@ -89,5 +89,6 @@
                 %div#detailbox
                 %div#notesbox
       %div{:id => "break", :style => "clear: both; padding-bottom: 1em;"}
-      %div#appfooter
+      %div.container
+        %hr
         = Yabitz.config().credit_html()
