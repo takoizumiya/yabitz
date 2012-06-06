@@ -1,22 +1,22 @@
 -# coding: utf-8
 
 %div#toolbox_spacer_top
-%div#toolbox
-  %div 表示： ホスト一覧
-  %div
+%ul#toolbox.unstyled
+  %li 表示： ホスト一覧
+  %li
     条件：
     &= cond
-  %div
+  %li
     選択：
-    %button#select_on_all すべて選択
-    %button#select_off_all 選択をクリア
-    %button#selected_hosts 選択ホストのみ表示
-    %button#hosts_history 変更履歴
-    %button#bricks_of_hosts 機器リスト
+    %button.btn#select_on_all すべて選択
+    %button.btn#select_off_all 選択をクリア
+    %button.btn#selected_hosts 選択ホストのみ表示
+    %button.btn#hosts_history 変更履歴
+    %button.btn#bricks_of_hosts 機器リスト
   - if @isadmin
     = haml :host_operations
 %div#toolbox_spacer_bottom
 %div#maincontents
-  %table#hostlist
+  %table#hostlist.table.table-striped.table-bordered.table-condensed
     = haml :host_list, :locals => {:host_list => @hosts}
 

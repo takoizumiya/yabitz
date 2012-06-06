@@ -1011,18 +1011,12 @@ function appendSortbarAfter ( elem, target_class ) {
     var bar = $('<tr class="sortbar"></tr>');
     bar.append('<th class="sortpad border_left">&nbsp;</th>');
     bar.append('<th class="sortbtn" target="displayname">ホスト名</th>');
-    bar.append('<th class="sortpad">&nbsp;</th>');
     bar.append('<th class="sortbtn" target="ipaddresses">IPアドレス</th>');
     bar.append('<th class="sortpad">&nbsp;</th>');
-    bar.append('<th class="sortpad">&nbsp;</th>');
     bar.append('<th class="sortbtn" target="service">サービス名</th>');
-    bar.append('<th class="sortpad">&nbsp;</th>');
     bar.append('<th class="sortbtn" target="hwid">HWID</th>');
-    bar.append('<th class="sortpad">&nbsp;</th>');
     bar.append('<th class="sortbtn" target="rackunit">Rackunit</th>');
     bar.append('<th class="sortbtn" target="alert">監視</th>');
-    bar.append('<th class="sortpad">&nbsp;</th>');
-    bar.append('<th class="sortpad border_right">&nbsp;</th>');
     bar.children('th.sortbtn').each(function(){
         $(this).attr('title', $(this).text()+'でソート');
     });

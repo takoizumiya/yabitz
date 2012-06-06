@@ -24,9 +24,9 @@
     %script{:type => "text/javascript", :src => "/js/jquery.form.js"}
     %script{:type => "text/javascript", :src => "/js/jquery-ui.min.js"}
     %script{:type => "text/javascript", :src => "/js/jquery.droppy.js"}
-    %script{:type => "text/javascript", :src => "/js/yabitz-bootstrap.js"}
+    %script{:type => "text/javascript", :src => "/js/yabitz.js"}
     - if @isadmin
-      %script{:type => "text/javascript", :src => "/js/admin-bootstrap.js"}
+      %script{:type => "text/javascript", :src => "/js/admin.js"}
     %script{:type => "text/javascript", :src => "/zeroclipboard/ZeroClipboard.js"}
     - Yabitz::Plugin.get(:handler).each do |plugin|
       - if plugin.respond_to?(:js)
@@ -55,7 +55,7 @@
       %div{:id => 'dialogmessage', :style => "vertical-align: middle; text-align: center;"}
         message
     = partial :layout_top
-    %div#content
+    %div.container
       - if @default_selected_all
         %div.hidden.default_selected_all
           select all selectables
@@ -64,10 +64,10 @@
           %div#mainview_full
             = yield
       - else
-        %div#appview
-          %div#mainview
+        %div#appview.row-fluid
+          %div#mainview.span8
             = yield
-          %div#detailview
+          %div#detailview.span4.well
             - unless @hide_selectionbox
               %div#selectionbox
                 - if @copypastable
@@ -89,6 +89,6 @@
                 %div#detailbox
                 %div#notesbox
       %div{:id => "break", :style => "clear: both; padding-bottom: 1em;"}
-      %div.container
+      %div
         %hr
         = Yabitz.config().credit_html()
