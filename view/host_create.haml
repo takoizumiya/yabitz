@@ -29,6 +29,8 @@
                 %td.inputfield
                   %div.hidden.suggested_items
                   %select{:name => "service"}
+                    - unless target
+                      %option{:value => -1, :selected => true} サービスを選択してください
                     - Yabitz::Model::Service.all.sort.each do |service|
                       - if target and target.oid == service.oid
                         %option{:value => service.oid, :selected => true}&= service.name + ' [' + service.content.to_s + ']'

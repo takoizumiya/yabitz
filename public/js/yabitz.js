@@ -152,23 +152,17 @@ $(function(){
         var service_select = $('select[name=service]');
         $('select.host_hypervisor').hide();
         $('span.loading.hypervisor').show();
-        get_hypervisors( service_select, function(hvlist) {
-            set_suggests( hvlist );
-            $('select.host_hypervisor').html( $(get_suggests()).slice(0,10) ).prepend(suggest_head()).append(suggest_foot());
-            $('span.loading.hypervisor').hide();
-            $('select.host_hypervisor').show();
-        }); 
-        service_select.change(function(){
-            var elem = $(this);
-            $('select.host_hypervisor').hide();
-            $('span.loading.hypervisor').show();
-            get_hypervisors( elem, function(hvlist) {
+        var do_hypervisor_suggeest = function(obj) {
+            if (obj.val() < 0) return;
+            get_hypervisors( obj, function(hvlist) {
                 set_suggests( hvlist );
                 $('select.host_hypervisor').html( $(get_suggests()).slice(0,10) ).prepend(suggest_head()).append(suggest_foot());
                 $('span.loading.hypervisor').hide();
                 $('select.host_hypervisor').show();
             });
-        });
+        };
+        service_select.change(function(){ do_hypervisor_suggeest($(this)); });
+        do_hypervisor_suggeest(service_select);
     }
 
     // K/B shortcut 
@@ -385,6 +379,7 @@ function show_hosts_history(event){
         return false;
     };
     window.location.href = '/ybz/host/history/' + selected.get().join('-');
+    return false;
 };
 
 function show_bricks_history(event){
@@ -394,6 +389,7 @@ function show_bricks_history(event){
         return false;
     };
     window.location.href = '/ybz/brick/history/' + selected.get().join('-');
+    return false;
 };
 
 function show_hosts_diff(event){
@@ -415,6 +411,7 @@ function show_hosts_diff(event){
         url = url + '/' + before;
     }
     window.location.href =  url;
+    return false;
 };
 
 function show_operations(event){
@@ -429,6 +426,7 @@ function show_operations(event){
         url = url + '/' + start + '/' + end;
     }
     window.location.href = url;
+    return false;
 };
 
 function load_page(url) { window.location.href = url; };
@@ -625,6 +623,7 @@ function show_detailbox_without_selection(event, modelname){
     var oid = target.attr("id"); // in case of ipaddr, "id" has ipaddress string, instead of oid
     if (oid == null || oid == "") {return false; }
     show_detailbox(modelname, oid, event.pageY - detailbox_offset(), false);
+    return false;
 };
 
 function toggle_item_selection(event, modelname, single){
@@ -663,6 +662,7 @@ function toggle_item_selection(event, modelname, single){
     }
     arguments.callee.last_clicked = target_obj_index;
     show_detailbox(modelname, oid, event.pageY - detailbox_offset(), false);
+    return false;
 };
 
 function reload_table_rows(type, oids){
@@ -883,7 +883,7 @@ function show_editable_item(event) {
         var inputarea = group.children('.dataedit').children('textarea');
         inputarea.addClass('datainput')
             .unbind()
-            .focus(function(){this.select()})
+            .focus(function(){this.select();})
             .focus();
         group.children('.dataedit').children('input[name="memoupdate"]')
             .click(function(e){$(e.target).closest('form.field_edit_form').submit(); return false;});
@@ -895,7 +895,7 @@ function show_editable_item(event) {
         var inputbox = group.children('.dataedit').children('input');
         inputbox.addClass('datainput')
             .unbind()
-            .focus(function(){this.select()})
+            .focus(function(){this.select();})
             .blur(rollback_editable_item)
             .keypress(function(e){if(e.which == 13){$(e.target).closest('form.field_edit_form').submit();};})
             .focus();
@@ -984,7 +984,7 @@ function searchFieldCheck ( elem ) {
             if (vSelect.attr('disabled')) {
                 vSelect.attr('disabled', false);
                 vSelect.show();
-                vText.attr('disabled', true)
+                vText.attr('disabled', true);
                 vText.hide();
             }
         }
@@ -1081,6 +1081,7 @@ function sortByColumn ( e ) {
             }
         }
     } );
+    var psUrl;
     if( elem.attr('order') == 'asc' ) {
         elem.attr('order','desc');
         $('span.sortorder').text('↓');
@@ -1088,7 +1089,7 @@ function sortByColumn ( e ) {
         target.sort(function(a,b){
             return ( sort_field_fetch(b) > sort_field_fetch(a) ? 1 : -1 );
         });
-        var psUrl = buildSortUrl( target_column, 'desc', target_class );
+        psUrl = buildSortUrl( target_column, 'desc', target_class );
         history.pushState(null, elem.text()+':'+'降順', psUrl);
     }
     else if( elem.attr('order') == 'desc' ) {
@@ -1098,7 +1099,7 @@ function sortByColumn ( e ) {
         target.sort(function(a,b){
             return ( sort_field_fetch(a) > sort_field_fetch(b) ? 1 : -1 );
         });
-        var psUrl = buildSortUrl( target_column, 'asc', target_class );
+        psUrl = buildSortUrl( target_column, 'asc', target_class );
         history.pushState(null, elem.text()+':'+'昇順', psUrl);
     }
     else {
@@ -1109,7 +1110,7 @@ function sortByColumn ( e ) {
         target.sort(function(a,b){
             return ( sort_field_fetch(a) > sort_field_fetch(b) ? 1 : -1 );
         });
-        var psUrl = buildSortUrl( target_column, 'asc', target_class );
+        psUrl = buildSortUrl( target_column, 'asc', target_class );
         history.pushState(null, elem.text()+':'+'昇順', psUrl);
     }
     $.each( target.reverse(), function(i, e){
@@ -1181,7 +1182,7 @@ function select_hypervisor(e){
     };
     var hv = function ( attr_name ) {
         return elem.children(':selected').attr( attr_name );
-    }
+    };
     if ( elem.val() == 'OTHER' ) {
         elem.hide().attr('disabled',true);
         input.show().attr('disabled',false);
@@ -1209,14 +1210,14 @@ function select_hypervisor(e){
         if ( selected_hv.attr('ip') ) {
             var exclude = $.grep( $('input'), function(n, i){
                 return ( $(n).attr('name').match(/^localips\d+$/) && $(n).val().length > 0 );
-            }).map(function(n){return $(n).val()});
+            }).map(function(n){return $(n).val();});
             suggest_ip( selected_hv.attr('ip'), exclude, function(json){
                 $.each( elem.closest('div.hostadd_item.cloneable').find('input'), function(i, n){
                     if ( $(n).attr('name').match(/^localips\d+$/) ) {
                         $(n).val(json.localip);
                     }
                 });
-            })
+            });
         }
     }
 }
@@ -1236,6 +1237,7 @@ function get_hypervisors(elem, cb){
 }
 
 function set_suggests(hvlist){
+    $('div.hidden.suggested_items').empty();
     $.each(hvlist, function(i,hv){
         $('div.hidden.suggested_items').append(hv);
     });
@@ -1272,7 +1274,7 @@ function suggest_head(){
 }
 
 function suggest_foot(label){
-    label = label ? label : 'その他のハイパーバイザ'
+    label = label ? label : 'その他のハイパーバイザ';
     return $('<option />').val('OTHER').text(label);
 }
 
@@ -1347,7 +1349,7 @@ function guess_dom0(str, cb){
 function suggest_ip(dom0_ip, exclude, cb){
     var params = {
         'ip': dom0_ip,
-        'ex[]': exclude,
+        'ex[]': exclude
     };
     $.ajax({
         url: '/ybz/ipaddress/suggest.json',
