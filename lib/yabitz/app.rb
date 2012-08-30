@@ -183,6 +183,7 @@ require_relative 'controller/rackunit.rb'
 require_relative 'controller/search.rb'
 require_relative 'controller/service.rb'
 require_relative 'controller/smartsearch.rb'
+require_relative 'controller/lookup.rb'
 
 if ENV['RACK_ENV'].to_sym == :development or ENV['RACK_ENV'].to_sym == :importtest
   Yabitz::Application.run! :host => '0.0.0.0', :port => 8180

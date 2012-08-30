@@ -23,7 +23,7 @@ class Yabitz::Application < Sinatra::Base
     end
   end
 
-  get %r!/ybz/ipaddress/(\d+_\d+_\d+_\d+)(\.tr\.ajax|\.ajax|\.json)?! do |ipaddr, ctype|
+  get %r!/ybz/ipaddress/(\d+[._]\d+[._]\d+[._]\d+)(\.tr\.ajax|\.ajax|\.json|\.txt)?! do |ipaddr, ctype|
     authorized?
     @ip = Yabitz::Model::IPAddress.query(:address => Yabitz::Model::IPAddress.dequote(ipaddr), :unique => true)
     unless @ip
@@ -36,6 +36,11 @@ class Yabitz::Application < Sinatra::Base
 
       response['Content-Type'] = 'application/json'
       @ip.to_json
+    when '.txt'
+      pass unless @ip.oid
+      pass unless @ip.hosts.first
+      response['Content-Type'] = 'text/plain'
+      @ip.hosts.first.display_name
     when '.tr.ajax'
       haml :ipaddress, :layout => false, :locals => {:ipaddress => @ip}
     when '.ajax'
