@@ -7,7 +7,8 @@ require 'haml'
 class Yabitz::Application < Sinatra::Base
   get %r!/ybz/hostname/lookup(\.json|\.txt)! do |ctype|
     authorized?
-    @ip = Yabitz::Model::IPAddress.query(:address => env['REMOTE_ADDR'], :unique => true)
+    remote = env['HTTP_X_FORWARDED_FOR'] || env['REMOTE_ADDR']
+    @ip = Yabitz::Model::IPAddress.query(:address => remote, :unique => true)
 
     case ctype
     when '.json'
