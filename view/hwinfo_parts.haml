@@ -1,0 +1,12 @@
+-# coding: utf-8
+-# hwinfo
+%div#detailbox
+  %form.identity
+    %input{:type => "hidden", :name => "oid", :value => @hwinfo.oid}
+    %input{:type => "hidden", :name => "type", :value => "hwinfo"}
+  %h3
+    ハードウェア情報
+  = field_editable 'hwinfo', @hwinfo, :text, :name, "HW名", @hwinfo.name, "未指定"
+  = field_editable 'hwinfo', @hwinfo, :text, :units, "ユニット数", @hwinfo.units, "未指定"
+  = field_editable 'hwinfo', @hwinfo, :text, :calcunits, "算出U数", @hwinfo.calcunits.to_f, "未指定"
+  = field_editable 'hwinfo', @hwinfo, :text, :virtualized, "仮想化", @hwinfo.virtualized, "false"

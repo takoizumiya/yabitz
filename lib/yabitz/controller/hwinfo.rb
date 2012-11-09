@@ -5,7 +5,7 @@ require 'sinatra/base'
 require 'haml'
 
 class Yabitz::Application < Sinatra::Base
-  get %r!/ybz/hwinfo/list(\.json)?! do |ctype|
+  get %r!/ybz/hwinfo/list(\.ajax|\.json)?! do |ctype|
     authorized?
     @hwinfos = Yabitz::Model::HwInformation.all
     # Stratum.preload(@hwinfos, Yabitz::Model::Host) # has no ref/reflist field.
@@ -17,6 +17,20 @@ class Yabitz::Application < Sinatra::Base
       @page_title = "ハードウェア情報一覧"
       @hwinfos.sort!
       haml :hwinfo_list
+    end
+  end
+
+  get %r!/ybz/hwinfo/(\d+)(\.tr\.ajax|\.ajax)! do |oid,ctype|
+    authorized?
+    @hwinfo = Yabitz::Model::HwInformation.get(oid.to_i)
+    pass unless @hwinfo
+    case ctype
+    when '.ajax'
+      haml :hwinfo_parts, :layout => false
+    when '.tr.ajax'
+      haml :hwinfo, :layout => false, :locals => {:hwinfo => @hwinfo}
+    else
+      pass
     end
   end
 
@@ -39,6 +53,25 @@ class Yabitz::Application < Sinatra::Base
     "ok"
   end
   
+  post %r!/ybz/hwinfo/(\d+)! do |oid|
+    protected!
+
+    Stratum.transaction do |conn|
+      @hwinfo = Yabitz::Model::HwInformation.get(oid.to_i)
+      pass unless @hwinfo
+      if request.params['target_id']
+        unless request.params['target_id'].to_i == @hwinfo.id
+          raise Stratum::ConcurrentUpdateError
+        end
+      end
+
+      field = request.params['field'].to_sym
+      @hwinfo.send(field.to_s + '=', @hwinfo.map_value(field, request))
+      @hwinfo.save
+    end
+    "ok"
+  end
+
   # delete '/ybz/hwinfo/:oid' #TODO
 
 end

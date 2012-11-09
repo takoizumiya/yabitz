@@ -7,6 +7,8 @@ require_relative '../misc/validator'
 module Yabitz
   module Model
     class HwInformation < Stratum::Model
+      include Yabitz::Mapper
+
       table :hwinformations
       field :name, :string, :length => 64
       field :prior, :bool, :default => false
@@ -15,6 +17,17 @@ module Yabitz
       field :calcunits, :string, :validator => 'check_calcunits', :empty => :ok
       fieldex :calcunits, "数値(少数点以下含めて4桁) 例: 2 , 12.5"
       field :virtualized, :bool, :default => false
+
+      def self.instanciate_mapping(fieldname)
+        case fieldname
+        when :name, :units, :calcunits
+          {:method => :new, :class => String}
+        when :virtualized
+          {:method => :boolparser}
+        else
+          raise ArgumentError, "unknown field name '#{fieldname}'"
+        end
+      end
 
       def <=>(one)
         self.name.downcase <=> one.name.downcase
