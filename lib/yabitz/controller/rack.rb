@@ -103,9 +103,21 @@ class Yabitz::Application < Sinatra::Base
           racktype.upper_rackunit_labels(host.rackunit.rackunit, host.hwinfo.unit_height - 1).each{|pos| @units[pos] = host}
         end
       end
+
+      prev_rack = nil
+      next_rack = nil
+      rack_list = Yabitz::Model::Rack.all().sort{|a,b| a.label <=> b.label}
+      rack_list.each_index do |i|
+        if rack_list[i].oid == @rack.oid
+          prev_rack = rack_list[i - 1] if rack_list[i - 1]
+          next_rack = rack_list[i + 1] if rack_list[i + 1]
+          break
+        end
+      end
+      
       @page_title = "ラック #{@rack.label} の状況"
       @hide_detailview = true
-      haml :rack_show
+      haml :rack_show, :locals => {:current => @rack, :prev_rack => prev_rack, :next_rack => next_rack}
     end
   end
 
