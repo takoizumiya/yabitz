@@ -72,6 +72,46 @@ class Yabitz::Application < Sinatra::Base
     "ok"
   end
 
-  # delete '/ybz/hwinfo/:oid' #TODO
+  post '/ybz/hwinfo/alter-prepare/:ope/:oid' do
+    admin_protected!
+    oid = params[:oid].to_i
+    hwinfo = Yabitz::Model::HwInformation.get(oid)
+    unless hwinfo
+      halt HTTP_STATUS_CONFLICT, "指定されたHW情報が見付かりません<br />ページを更新してやりなおしてください"
+    end
 
+    case params[:ope]
+    when 'delete_records'
+      if Yabitz::Model::Host.query(:hwinfo => hwinfo, :count => true) > 0
+        halt HTTP_STATUS_NOT_ACCEPTABLE, "該当HW情報を参照しているホストがあるため削除できません"
+      end
+
+      "選択されたHW情報 #{hwinfo.name} のデータを削除して本当にいいですか？"
+    else
+      pass
+    end
+  end
+
+  post '/ybz/hwinfo/alter-execute/:ope/:oid' do
+    admin_protected!
+    oid = params[:oid].to_i
+    hwinfo = Yabitz::Model::HwInformation.get(oid)
+    unless hwinfo
+      halt HTTP_STATUS_CONFLICT, "指定されたHW情報が見付かりません<br />ページを更新してやりなおしてください"
+    end
+
+    case params[:ope]
+    when 'delete_records'
+      hwinfoname = hwinfo.name
+      Stratum.transaction do |conn|
+        if Yabitz::Model::Host.query(:hwinfo => hwinfo, :count => true) > 0
+          halt HTTP_STATUS_NOT_ACCEPTABLE, "該当HW情報を参照しているホストがあるため削除できません"
+        end
+        hwinfo.remove()
+      end
+      "完了： HW情報 #{hwinfoname} の削除"
+    else
+      pass
+    end
+  end
 end

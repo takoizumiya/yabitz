@@ -70,6 +70,18 @@ function dispatch_admin_operation(event) {
     case 'delete_records': dialogtype = 'confirm_dialog'; break;
     };
   }
+  else if (target.attr('id') == 'osinfo_operation_list') {
+    modeltype = 'osinfo';
+    switch (target.val()) {
+    case 'delete_records': dialogtype = 'confirm_dialog'; break;
+    };
+  }
+  else if (target.attr('id') == 'hwinfo_operation_list') {
+    modeltype = 'hwinfo';
+    switch (target.val()) {
+    case 'delete_records': dialogtype = 'confirm_dialog'; break;
+    };
+  }
   else if (target.attr('id') == 'brick_operation_list') {
     modeltype = 'brick';
     switch (target.val()) {

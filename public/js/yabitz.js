@@ -43,6 +43,7 @@ $(function(){
   $('.ipaddress_item.selectable').click(function(e){toggle_item_selection(e, 'ipaddress', true);});
   $('.ipsegment_item.selectable').click(function(e){toggle_item_selection(e, 'ipsegment', true);});
   $('.hwinfo_item.selectable').click(function(e){toggle_item_selection(e, 'hwinfo', true);});
+  $('.osinfo_item.selectable').click(function(e){toggle_item_selection(e, 'osinfo', true);});
   $('.authinfo_item.selectable').click(function(e){toggle_item_selection(e, 'auth_info');});
   $('.charge_item.selectable').click(function(e){toggle_item_selection(e, 'charge/content', true);});
   $('.machine_item.hw.selectable').click(function(e){toggle_item_selection(e, 'machines/hardware', true);});
@@ -211,6 +212,12 @@ function regist_event_listener(target){
   }
   if (target.hasClass('ipsegment_item')) {
     target.click(function(e){toggle_item_selection(e, 'ipsegment', true);});
+  }
+  if (target.hasClass('hwinfo_item')) {
+    target.click(function(e){toggle_item_selection(e, 'hwinfo', true);});
+  }
+  if (target.hasClass('osinfo_item')) {
+    target.click(function(e){toggle_item_selection(e, 'osinfo', true);});
   }
   if (target.hasClass('contactmember_item')) {
     target.click(function(e){toggle_item_selection(e, 'contactmember');});
