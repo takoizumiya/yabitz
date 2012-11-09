@@ -75,6 +75,8 @@ class Yabitz::Application < Sinatra::Base
     haml :rack_list
   end
 
+  #TODO add /yabitz/rack/label/LABEL_STRING handler ?
+
   get %r!/ybz/rack/(\d+)(\.tr\.ajax|\.ajax|\.json)?! do |oid, ctype|
     authorized?
     @rack = Yabitz::Model::Rack.get(oid.to_i)
