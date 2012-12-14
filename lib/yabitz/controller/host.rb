@@ -612,7 +612,8 @@ EOT
             bricks = Yabitz::Model::Brick.query(:hwid => host.hwid)
             if bricks.size == 1
               brick = bricks.first
-              if brick.status == Yabitz::Model::Brick::STATUS_IN_USE
+              if brick.status == Yabitz::Model::Brick::STATUS_STOCK or brick.status == Yabitz::Model::Brick::STATUS_IN_USE
+                brick.status = Yabitz::Model::Brick::STATUS_IN_USE
                 brick.served!
                 brick.save
               end
