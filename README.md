@@ -95,7 +95,7 @@ SinatraのアプリケーションサーバとしてPhusion Passengerを使用�
 適当な場所に yabitz を git clone します。
 
     $ cd /path/to/your/app
-    $ git clone git://github.com/tagomoris/yabitz.git
+    $ git clone git://github.com/livedoor/yabitz.git
 
 yabitz の動作設定を config プラグインとして作成します。とりあえず試す範囲であれば、デフォルトで用意されているものがあります。
 
