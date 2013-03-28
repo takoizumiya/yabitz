@@ -17,7 +17,7 @@ module Yabitz
       when 'rackunit'
         plugins = Yabitz::Plugin.get(:racktype).select{|p| p.respond_to?(:search_extra_pattern)}
         patterns = [pattern] + plugins.map{|p| p.search_extra_pattern(pattern_string)}.flatten
-        patterns.map{|p| Yabitz::Model::RackUnit.regex_match(:rackunit => p).map(&:hosts_by_id)}.flatten.uniq
+        patterns.map{|p| Yabitz::Model::RackUnit.regex_match(:rackunit => Regexp.compile(p)).map(&:hosts_by_id)}.flatten.uniq
       when 'hwid'
         Yabitz::Model::Host.regex_match(:hwid => pattern, :oidonly => true)
       when 'dnsname'
@@ -107,7 +107,9 @@ module Yabitz
       when :serviceurl
         Yabitz::Model::ServiceURL.query(:url => keyword).map(&:services).flatten.compact
       when :rackunit
-        Yabitz::Model::RackUnit.regex_match(:rackunit => Regexp.compile(keyword)).map(&:hosts).flatten.compact
+        plugins = Yabitz::Plugin.get(:racktype).select{|p| p.respond_to?(:search_extra_pattern)}
+        patterns = [keyword] + plugins.map{|p| p.search_extra_pattern(keyword)}.flatten
+        patterns.map{|p| Yabitz::Model::RackUnit.regex_match(:rackunit => Regexp.compile(p)).map(&:hosts)}.flatten.compact
       when :dnsname
         Yabitz::Model::DNSName.regex_match(:dnsname => Regexp.compile(keyword)).map(&:hosts).flatten.compact
       when :hwid
