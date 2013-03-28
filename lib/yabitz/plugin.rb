@@ -55,6 +55,7 @@ module Yabitz
     #   datacenter #=> String
     #   rack_label_pattern #=> regex
     #   rackunit_label_pattern #=> regex
+    #   search_extra_pattern(pattern_string) #=> [fixed_regex_pattern_string] or []
     #   rack_label(rackunit_label) #=> String
     #   dividing(rackunit_label) #=> String
     #   rack_label_example #=> String ('Xn-Xnn')

@@ -2,6 +2,7 @@
 
 require_relative '../model'
 require_relative './racktype'
+require_relative '../plugin'
 
 module Yabitz
   module DetailSearch
@@ -14,7 +15,9 @@ module Yabitz
           Yabitz::Model::Host.query(:service => srv_oid, :oidonly => true)
         end.flatten
       when 'rackunit'
-        Yabitz::Model::RackUnit.regex_match(:rackunit => pattern).map(&:hosts_by_id).flatten.uniq
+        plugins = Yabitz::Plugin.get(:racktype).select{|p| p.respond_to?(:search_extra_pattern)}
+        patterns = [pattern] + plugins.map{|p| p.search_extra_pattern(pattern_string)}.flatten
+        patterns.map{|p| Yabitz::Model::RackUnit.regex_match(:rackunit => p).map(&:hosts_by_id)}.flatten.uniq
       when 'hwid'
         Yabitz::Model::Host.regex_match(:hwid => pattern, :oidonly => true)
       when 'dnsname'
