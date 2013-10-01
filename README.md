@@ -200,7 +200,7 @@ yabitz の動作設定を config プラグインとして作成します。と�
 
 上記準備が完了したら yabitz を起動します。sinatraには組込みサーバがあるため、以下のコマンドで localhost:8180 で起動します。
 
-    $ RACK_ENV=production ruby lib/yabitz/app.rb
+    $ RACK_ENV=development ruby lib/yabitz/app.rb
 
 また mod_passenger で起動したい場合には以下のようにApacheの設定に追加します。(モジュールやRubyのパスは自分の環境にあわせて適当に。)
 
