@@ -49,7 +49,7 @@
 * サーバ環境
     * Ruby 1.9.2 (1.9.1以前および1.8系では動作しません)
         * sinatra, haml/sass, ruby-ldap, ruby-mysql, rspec
-        * Stratum (see https://github.com/tagomoris/Stratum )
+        * stratum (see https://github.com/tagomoris/Stratum )
     * MySQL 5.1.x
         * 5.0でも動作はすると思いますが、未確認です
         * 5.5ではおそらく動作しません (ruby-mysqlのバグ？ そのうち mysql2 に移行予定)
@@ -75,27 +75,13 @@
 
 MySQLにおける認証設定は適宜行ってください。
 
-また以下のRuby Gemsをインストールします。(全て最新のもので良いはず)
-
-* sinatra
-* haml
-* ruby-ldap
-* ruby-mysql
-* rspec
-
-SinatraのアプリケーションサーバとしてPhusion Passengerを使用する場合は Apache2 および passenger をインストールします。
-
-また依存ライブラリである Stratum を適当な場所に git clone します。
-
-    $ cd /path/to/your/lib
-    $ git clone git://github.com/tagomoris/Stratum.git
-
 ### yabitzの展開と設定
 
-適当な場所に yabitz を git clone します。
+適当な場所に yabitz を git clone し、bundle install で依存ライブラリをインストールします。
 
     $ cd /path/to/your/app
     $ git clone git://github.com/livedoor/yabitz.git
+    $ bundle install
 
 yabitz の動作設定を config プラグインとして作成します。とりあえず試す範囲であれば、デフォルトで用意されているものがあります。
 
@@ -153,7 +139,7 @@ yabitz の動作設定を config プラグインとして作成します。と�
   
 最低限、以下の点を確認・修正してください。
 
-* ライブラリのロードバス指定 (extra_load_path)
+* ライブラリのロードバス指定 (`extra_load_path`)
     * Stratumを展開したディレクトリは必ずここで指定してください
         * 独自にプラグインを追加する場合には、プラグインが依存する(Ruby管理外の)ライブラリのパスはここで追加する必要があります
 * データベース接続設定
@@ -162,7 +148,7 @@ yabitz の動作設定を config プラグインとして作成します。と�
  
 上記設定が正常になっていれば、以下のコマンドでデータベースおよびテーブルが作成されます。
 
-    $ RACK_ENV=production ruby scripts/db_schema.rb
+    $ RACK_ENV=production bundle exec ruby scripts/db_schema.rb
 
 また yabitz は情報の登録や編集、および連絡先情報の閲覧には必ず認証を要求します。認証情報は以下の方法から参照することができます。
 
@@ -180,12 +166,12 @@ yabitz の動作設定を config プラグインとして作成します。と�
 
     $ vi scripts/instant/db_schema_membersource.rb # データベース名およびテーブル名を編集(問題なければデフォルトのままで)
     $ vi lib/yabitz/plugin/instant_membersource.rb # データベースのホスト名、ユーザ名とパスワード、データベース名およびテーブル名を編集
-    $ ruby scripts/instant/db_schema_membersource.rb HOSTNAME USERNAME [PASSWORD]
+    $ bundle exec ruby scripts/instant/db_schema_membersource.rb HOSTNAME USERNAME [PASSWORD]
        (たとえば ruby scripts/instant/db_schema_membersource.rb localhost root などとして実行)
 
 上記コマンド実行後、最低限のユーザ登録を済ませます(データベース名やテーブル名を変更した場合は実行前にこのスクリプトの記述も修正すること。)。データベースへの接続にパスワードが必要な場合は最後に -p を指定すると、プロンプトで確認されます。
 
-    $ ruby scripts/instant/register_user.rb HOSTNAME USERNAME [-p]
+    $ bundle exec ruby scripts/instant/register_user.rb HOSTNAME USERNAME [-p]
 
 このスクリプトを実行すると、以下の情報の入力を求められます。
 
@@ -198,9 +184,9 @@ yabitz の動作設定を config プラグインとして作成します。と�
 氏名や役職には日本語が使用できます。また既に登録済みのユーザ名を入力した場合は登録内容の変更を実施します。
 これらの登録情報は yabitz における認証や連絡先情報の検索ソースとして使用されます。(yabitz起動中にこれらのスクリプトを実行しても問題ありません。)
 
-上記準備が完了したら yabitz を起動します。sinatraには組込みサーバがあるため、以下のコマンドで localhost:8180 で起動します。
+上記準備が完了したら yabitz を起動します。sinatraには組込みサーバがあるため、以下のコマンドで localhost:9292 で起動します。
 
-    $ RACK_ENV=production ruby lib/yabitz/app.rb
+    $ RACK_ENV=production bundle exec rackup config.ru
 
 また mod_passenger で起動したい場合には以下のようにApacheの設定に追加します。(モジュールやRubyのパスは自分の環境にあわせて適当に。)
 

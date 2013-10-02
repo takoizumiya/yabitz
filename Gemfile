@@ -1,6 +1,6 @@
 source "http://rubygems.org"
 
-# gem 'stratum'
+gem 'stratum', :git => "https://github.com/tagomoris/stratum.git"
 gem 'mysql2'
 gem 'mysql2-cs-bind'
 gem 'sinatra'
