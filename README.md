@@ -81,6 +81,7 @@ MySQLにおける認証設定は適宜行ってください。
 
     $ cd /path/to/your/app
     $ git clone git://github.com/livedoor/yabitz.git
+    $ cd yabitz
     $ bundle install
 
 yabitz の動作設定を config プラグインとして作成します。とりあえず試す範囲であれば、デフォルトで用意されているものがあります。
